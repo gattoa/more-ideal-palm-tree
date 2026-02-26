@@ -1,11 +1,120 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Base color scale */
+  --neutral-0: #ffffff;
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1e293b;
+  --neutral-900: #0f172a;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  --brand-100: #e7f4ef;
+  --brand-200: #c8e8dc;
+  --brand-300: #a3d9c7;
+  --brand-400: #7ac5ad;
+  --brand-500: #53b194;
+  --brand-600: #3e9279;
+  --brand-700: #2f705e;
+
+  --success-200: #d8f3e6;
+  --success-500: #3ca271;
+  --warning-200: #fce8cc;
+  --warning-500: #c2832d;
+  --danger-200: #f8d8dd;
+  --danger-500: #b24b59;
+
+  /* Base spacing scale */
+  --space-scale-xs: 0.25rem;
+  --space-scale-sm: 0.5rem;
+  --space-scale-md: 0.75rem;
+  --space-scale-lg: 1rem;
+  --space-scale-xl: 1.5rem;
+
+  /* Base typography */
+  --font-family-sans: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-scale-sm: 0.875rem;
+  --font-size-scale-md: 1rem;
+  --font-size-scale-lg: 1.125rem;
+  --font-size-scale-xl: 1.25rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.65;
+
+  /* Base radius scale */
+  --radius-scale-sm: 0.375rem;
+  --radius-scale-md: 0.625rem;
+  --radius-scale-lg: 0.875rem;
+  --radius-scale-xl: 1.25rem;
+
+  /* Base sizing/motion */
+  --size-min-viewport-width: 20rem;
+  --size-min-viewport-height: 100vh;
+  --size-max-content-width: 64rem;
+  --size-border-width-sm: 1px;
+  --size-focus-outline-width: 0.1875rem;
+  --size-focus-outline-offset: 0.125rem;
+
+  --motion-duration-fast: 0.2s;
+  --motion-easing-standard: ease;
+
+  /* Semantic color tokens */
+  --color-bg: var(--neutral-0);
+  --color-surface: var(--neutral-50);
+  --color-surface-subtle: var(--neutral-100);
+  --color-text: var(--neutral-800);
+  --color-text-muted: var(--neutral-600);
+  --color-border: var(--neutral-200);
+  --color-primary: var(--brand-600);
+  --color-primary-hover: var(--brand-700);
+  --color-focus-ring: var(--brand-300);
+  --color-on-primary: var(--neutral-0);
+  --color-success: var(--success-500);
+  --color-warning: var(--warning-500);
+  --color-danger: var(--danger-500);
+
+  /* Semantic layout/type/radius tokens */
+  --space-xs: var(--space-scale-xs);
+  --space-sm: var(--space-scale-sm);
+  --space-md: var(--space-scale-md);
+  --space-lg: var(--space-scale-lg);
+  --space-xl: var(--space-scale-xl);
+
+  --font-family-body: var(--font-family-sans);
+  --font-size-sm: var(--font-size-scale-sm);
+  --font-size-md: var(--font-size-scale-md);
+  --font-size-lg: var(--font-size-scale-lg);
+  --font-size-xl: var(--font-size-scale-xl);
+  --font-weight-body: var(--font-weight-regular);
+  --font-weight-emphasis: var(--font-weight-medium);
+  --line-height-body: var(--line-height-normal);
+
+  --radius-sm: var(--radius-scale-sm);
+  --radius-md: var(--radius-scale-md);
+  --radius-lg: var(--radius-scale-lg);
+  --radius-xl: var(--radius-scale-xl);
+
+  --layout-min-width: var(--size-min-viewport-width);
+  --layout-min-height: var(--size-min-viewport-height);
+  --layout-max-width: var(--size-max-content-width);
+  --border-width-sm: var(--size-border-width-sm);
+  --focus-outline-width: var(--size-focus-outline-width);
+  --focus-outline-offset: var(--size-focus-outline-offset);
+  --motion-fast: var(--motion-duration-fast);
+  --motion-ease: var(--motion-easing-standard);
+
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-body);
+  font-weight: var(--font-weight-body);
+  color-scheme: light;
+  color: var(--color-text);
+  background-color: var(--color-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,83 +123,47 @@
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
+  font-weight: var(--font-weight-emphasis);
+  color: var(--color-primary);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--color-primary-hover);
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-width: var(--layout-min-width);
+  min-height: var(--layout-min-height);
 }
 
 #app {
-  max-width: 1280px;
+  max-width: var(--layout-max-width);
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  padding: var(--space-xl);
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  border-radius: var(--radius-md);
+  border: var(--border-width-sm) solid var(--color-border);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-emphasis);
+  font-family: var(--font-family-body);
+  line-height: var(--line-height-body);
+  color: var(--color-on-primary);
+  background-color: var(--color-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: background-color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
 }
 button:hover {
-  border-color: #646cff;
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+  outline: var(--focus-outline-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-outline-offset);
 }
