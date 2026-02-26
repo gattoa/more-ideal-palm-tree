@@ -196,3 +196,164 @@ button:focus-visible {
   outline: var(--focus-outline-width) solid var(--color-focus-ring);
   outline-offset: var(--focus-outline-offset);
 }
+
+.todo-app {
+  max-width: 40rem;
+  margin: 0 auto;
+  background: var(--color-surface);
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.todo-app__header {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.todo-app__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  line-height: var(--line-height-heading);
+  color: var(--color-text);
+}
+
+.todo-app__form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.todo-app__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.todo-app__input {
+  width: 100%;
+  min-height: 2.5rem;
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-body);
+}
+
+.todo-app__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.todo-app__input:focus,
+.todo-app__input:focus-visible {
+  outline: var(--focus-outline-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.todo-app__add-button {
+  min-height: 2.5rem;
+}
+
+.todo-app__items {
+  min-height: 8rem;
+  border: var(--border-width-sm) dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  display: grid;
+  gap: var(--space-sm);
+  background: var(--color-bg);
+}
+
+.todo-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.todo-item__toggle {
+  appearance: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  cursor: pointer;
+  display: inline-grid;
+  place-content: center;
+}
+
+.todo-item__toggle::before {
+  content: "";
+  width: 0.58rem;
+  height: 0.58rem;
+  border-radius: calc(var(--radius-sm) / 2);
+  transform: scale(0);
+  transition: transform var(--motion-fast) var(--motion-ease);
+  background: var(--color-primary);
+}
+
+.todo-item__toggle:checked {
+  border-color: color-mix(in oklab, var(--color-primary) 65%, var(--color-border) 35%);
+  background: color-mix(in oklab, var(--color-primary) 10%, var(--color-bg) 90%);
+}
+
+.todo-item__toggle:checked::before {
+  transform: scale(1);
+}
+
+.todo-item__toggle:focus,
+.todo-item__toggle:focus-visible {
+  outline: var(--focus-outline-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.todo-item__text {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-body);
+}
+
+.todo-item__delete-button {
+  min-height: 2rem;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+}
+
+.todo-item__delete-button:hover {
+  background: color-mix(in oklab, var(--color-danger) 10%, var(--color-bg) 90%);
+  border-color: color-mix(in oklab, var(--color-danger) 38%, var(--color-border) 62%);
+  color: var(--color-danger);
+}
+
+.todo-item.is-completed {
+  background: var(--color-surface-subtle);
+}
+
+.todo-item.is-completed .todo-item__text {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}

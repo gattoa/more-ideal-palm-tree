@@ -7,7 +7,26 @@
     <title>more-ideal-palm-tree</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" class="todo-app">
+      <header class="todo-app__header">
+        <h1 class="todo-app__title">Todo List</h1>
+      </header>
+
+      <form class="todo-app__form" aria-label="Add a new todo item">
+        <label class="todo-app__label" for="todo-input">New todo</label>
+        <input
+          id="todo-input"
+          class="todo-app__input"
+          type="text"
+          name="todo"
+          placeholder="What needs to be done?"
+          autocomplete="off"
+        />
+        <button class="todo-app__add-button" type="submit">Add</button>
+      </form>
+
+      <section class="todo-app__items" aria-live="polite"></section>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
