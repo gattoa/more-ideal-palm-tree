@@ -4,28 +4,32 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>more-ideal-palm-tree</title>
+    <title>Today</title>
   </head>
   <body>
     <div id="app" class="todo-app">
       <header class="todo-app__header">
-        <h1 class="todo-app__title">Todo List</h1>
+        <p class="todo-app__eyebrow" aria-hidden="true"></p>
+        <h1 class="todo-app__title">Today</h1>
+        <p class="todo-app__progress" aria-live="polite"></p>
       </header>
 
-      <form class="todo-app__form" aria-label="Add a new todo item">
-        <label class="todo-app__label" for="todo-input">New todo</label>
+      <form class="todo-app__form" aria-label="Add a new step">
+        <label class="todo-app__label" for="todo-input">New step</label>
         <input
           id="todo-input"
           class="todo-app__input"
           type="text"
           name="todo"
-          placeholder="What needs to be done?"
+          placeholder="What's your next step?"
           autocomplete="off"
         />
-        <button class="todo-app__add-button" type="submit">Add</button>
+        <button class="todo-app__add-button" type="submit" aria-label="Add step">
+          <i data-lucide="plus"></i>
+        </button>
       </form>
 
-      <section class="todo-app__items" aria-live="polite"></section>
+      <section class="todo-app__items" aria-live="polite" aria-label="Today's steps"></section>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

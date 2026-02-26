@@ -161,10 +161,29 @@ a:hover {
 
 body {
   margin: 0;
-  background: var(--color-bg);
+  background:
+    radial-gradient(120% 80% at 18% 2%, color-mix(in oklab, var(--brand-200) 30%, transparent), transparent 65%),
+    radial-gradient(90% 70% at 88% 12%, color-mix(in oklab, var(--accent-dusk-300) 18%, transparent), transparent 70%),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-bg) 82%, var(--brand-100) 18%) 0%,
+      color-mix(in oklab, var(--color-bg) 92%, var(--neutral-0) 8%) 55%,
+      var(--color-bg) 100%
+    );
   color: var(--color-text);
   min-width: var(--layout-min-width);
   min-height: var(--layout-min-height);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
 }
 
 #app {
@@ -197,15 +216,16 @@ button:focus-visible {
   outline-offset: var(--focus-outline-offset);
 }
 
+#app.todo-app,
 .todo-app {
-  max-width: 40rem;
+  max-width: 56rem;
   margin: 0 auto;
-  background: var(--color-surface);
-  border: var(--border-width-sm) solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: calc(var(--space-xl) * 1.35) var(--space-xl);
   display: grid;
-  gap: var(--space-lg);
+  gap: var(--space-xl);
 }
 
 .todo-app__header {
@@ -213,21 +233,49 @@ button:focus-visible {
   gap: var(--space-xs);
 }
 
+.todo-app__eyebrow {
+  margin: 0 0 var(--space-xs);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  min-height: 1em;
+}
+
 .todo-app__title {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-xl);
+  font-size: clamp(3.25rem, 8vw, 5rem);
   font-weight: var(--font-weight-heading);
-  letter-spacing: var(--letter-spacing-heading);
-  line-height: var(--line-height-heading);
-  color: var(--color-text);
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: color-mix(in oklab, var(--color-text) 85%, var(--color-primary) 15%);
+}
+
+.todo-app__progress {
+  height: 1.5rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .todo-app__form {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--space-sm);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-md);
   align-items: center;
+  background: color-mix(in oklab, var(--color-surface) 80%, var(--color-bg) 20%);
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-md);
+  box-shadow: 0 1px 3px color-mix(in oklab, var(--neutral-900) 4%, transparent), 0 1px 2px color-mix(in oklab, var(--neutral-900) 3%, transparent);
 }
 
 .todo-app__label {
@@ -243,13 +291,13 @@ button:focus-visible {
 }
 
 .todo-app__input {
-  width: 100%;
-  min-height: 2.5rem;
-  border: var(--border-width-sm) solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg);
+  box-sizing: border-box;
+  min-height: 3rem;
+  border: var(--border-width-sm) solid color-mix(in oklab, var(--color-border) 76%, var(--brand-200) 24%);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--color-bg) 86%, var(--color-surface) 14%);
   color: var(--color-text);
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
   font-size: var(--font-size-md);
   font-family: var(--font-family-body);
 }
@@ -265,28 +313,112 @@ button:focus-visible {
 }
 
 .todo-app__add-button {
-  min-height: 2.5rem;
+  position: relative;
+  min-height: 3rem;
+  width: 3rem;
+  border-radius: var(--radius-xl);
+  padding: 0;
+  border-color: color-mix(in oklab, var(--color-border) 72%, var(--brand-200) 28%);
+  color: color-mix(in oklab, var(--color-primary) 82%, var(--color-text) 18%);
+  background: color-mix(in oklab, var(--color-surface) 78%, var(--brand-100) 22%);
+  box-shadow: none;
+  display: inline-grid;
+  place-items: center;
+}
+
+
+.todo-app__add-button svg {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  flex-shrink: 0;
+}
+
+.todo-app__add-button:hover {
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
 }
 
 .todo-app__items {
-  min-height: 8rem;
-  border: var(--border-width-sm) dashed var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  padding: var(--space-xs) 0 0;
   display: grid;
-  gap: var(--space-sm);
-  background: var(--color-bg);
+  gap: 0;
+  align-content: start;
+  grid-auto-rows: max-content;
+  background: transparent;
+}
+
+.todo-empty {
+  margin: var(--space-xl) 0 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+  font-style: italic;
+  line-height: var(--line-height-relaxed);
+}
+
+@keyframes item-appear {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes item-remove {
+  to {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+
+.todo-item.is-removing {
+  animation: item-remove 0.2s ease forwards;
+  pointer-events: none;
 }
 
 .todo-item {
+  position: relative;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm);
-  border: var(--border-width-sm) solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-sm) var(--space-md) 1.125rem;
+  border: 0;
+  border-bottom: var(--border-width-sm) solid color-mix(in oklab, var(--color-border) 55%, transparent 45%);
+  border-radius: 0;
+  background: transparent;
+}
+
+.todo-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 1.25rem;
+  border-radius: 1px;
+  background: var(--color-border);
+  transition:
+    height var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease);
+}
+
+.todo-item:hover::before {
+  height: 1.75rem;
+  background: color-mix(in oklab, var(--color-accent) 70%, var(--color-border) 30%);
+}
+
+.todo-item.is-new {
+  animation: item-appear 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .todo-item__toggle {
@@ -294,9 +426,9 @@ button:focus-visible {
   width: 1.1rem;
   height: 1.1rem;
   margin: 0;
-  border: var(--border-width-sm) solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
+  border: var(--border-width-sm) solid color-mix(in oklab, var(--color-border) 68%, var(--brand-200) 32%);
+  border-radius: var(--radius-xl);
+  background: color-mix(in oklab, var(--color-bg) 90%, var(--color-surface) 10%);
   cursor: pointer;
   display: inline-grid;
   place-content: center;
@@ -304,12 +436,12 @@ button:focus-visible {
 
 .todo-item__toggle::before {
   content: "";
-  width: 0.58rem;
-  height: 0.58rem;
-  border-radius: calc(var(--radius-sm) / 2);
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--color-primary);
+  clip-path: polygon(14% 44%, 0% 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
   transform: scale(0);
   transition: transform var(--motion-fast) var(--motion-ease);
-  background: var(--color-primary);
 }
 
 .todo-item__toggle:checked {
@@ -329,31 +461,94 @@ button:focus-visible {
 
 .todo-item__text {
   margin: 0;
-  color: var(--color-text);
+  color: color-mix(in oklab, var(--color-text) 88%, var(--neutral-900) 12%);
   font-size: var(--font-size-md);
   line-height: var(--line-height-body);
+  overflow-wrap: anywhere;
 }
 
 .todo-item__delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 2rem;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-sm);
-  border-color: var(--color-border);
+  width: 2rem;
+  padding: 0;
+  border-radius: var(--radius-xl);
+  border-color: transparent;
   color: var(--color-text-muted);
-  background: var(--color-bg);
+  background: transparent;
+  opacity: 0;
+  transform: scale(0.7);
+  pointer-events: none;
+  transition:
+    opacity var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+
+.todo-item__delete-button svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  display: block;
+  flex-shrink: 0;
+}
+
+.todo-item:hover .todo-item__delete-button,
+.todo-item:focus-within .todo-item__delete-button {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
 }
 
 .todo-item__delete-button:hover {
-  background: color-mix(in oklab, var(--color-danger) 10%, var(--color-bg) 90%);
-  border-color: color-mix(in oklab, var(--color-danger) 38%, var(--color-border) 62%);
+  background: color-mix(in oklab, var(--color-danger) 9%, transparent);
+  border-color: color-mix(in oklab, var(--color-danger) 28%, var(--color-border) 72%);
   color: var(--color-danger);
 }
 
+.todo-item__delete-button:focus,
+.todo-item__delete-button:focus-visible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
 .todo-item.is-completed {
-  background: var(--color-surface-subtle);
+  background: transparent;
+}
+
+.todo-item.is-completed::before {
+  height: 0.875rem;
+  background: var(--color-success);
+  opacity: 0.75;
+}
+
+.todo-item.is-completed:hover::before {
+  height: 0.875rem;
+  background: var(--color-success);
+  opacity: 0.9;
 }
 
 .todo-item.is-completed .todo-item__text {
-  color: var(--color-text-muted);
+  color: color-mix(in oklab, var(--color-text-muted) 80%, var(--color-border) 20%);
   text-decoration: line-through;
+  text-decoration-color: color-mix(in oklab, var(--color-text-muted) 50%, transparent);
+}
+
+@media (max-width: 36rem) {
+  #app {
+    padding: var(--space-lg);
+  }
+
+  .todo-app__form {
+    grid-template-columns: 1fr;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .todo-app__add-button {
+    justify-self: start;
+  }
 }
