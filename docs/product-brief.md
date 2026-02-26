@@ -8,12 +8,12 @@ A mobile-first progressive web app that tracks incremental daily progress across
 
 ## Vision
 
-Build a system that captures the full breadth of life activity in one place and reveals how incremental effort accumulates into something meaningful across days, weeks, months, and years. Replace the chronic sense of underaccomplishment with a structure that makes progress visible, creating an anxiety-free experience of forward motion where every contribution—from writing a book chapter to paying an insurance bill—connects to a fulfilling, intentional life.
+Build a system that captures the full breadth of life activity in one place and reveals how incremental effort accumulates into something meaningful across days, weeks, months, and years. Replace the chronic sense of underaccomplishment with a structure that makes progress visible, creating an anxiety-free experience of forward motion where every contribution-from writing a book chapter to paying an insurance bill-connects to a fulfilling, intentional life.
 
 ## Problem Statement
 
 **What problem does this solve?**
-Individuals managing multiple concurrent life domains experience a fragmented, overwhelming daily experience with no single system to capture their full breadth of activity. Current tools are optimized for task completion rather than surfacing the meaning and accumulation of effort across a whole life. This creates a chronic sense of underaccomplishment—not from doing too little, but from having no structure that makes the accumulation visible.
+Individuals managing multiple concurrent life domains experience a fragmented, overwhelming daily experience with no single system to capture their full breadth of activity. Current tools are optimized for task completion rather than surfacing the meaning and accumulation of effort across a whole life. This creates a chronic sense of underaccomplishment-not from doing too little, but from having no structure that makes the accumulation visible.
 
 **Why is it important to solve now?**
 Every day feels like a fresh slate of failure rather than a continuation of a larger, ongoing journey. Existing tools (project managers like Plane, informal lists like Apple Notes) fail to connect daily activity to broader life balance or personal fulfillment, providing no sense of journey or forward motion.
@@ -49,7 +49,7 @@ This persona is inferred from the issue author's self-description: managing thre
 
 ## Initiative
 
-Build a mobile-first progressive web app with a four-tier data model (Journey → Path → Milestone → Step) that captures atomic units of work and aggregates them upward to reveal patterns in life balance (Wheel of Life), emotional fulfillment (PERMA), and purpose alignment (Ikigai). The initiative creates a journey tracking experience rather than a task management system, emphasizing emotional tone of forward motion, visibility across time horizons, and personal meaning derived from data.
+Build a mobile-first progressive web app with a four-tier data model (Journey -> Path -> Milestone -> Step) that captures atomic units of work and aggregates them upward to reveal patterns in life balance (Wheel of Life), emotional fulfillment (PERMA), and purpose alignment (Ikigai). The initiative creates a journey tracking experience rather than a task management system, emphasizing emotional tone of forward motion, visibility across time horizons, and personal meaning derived from data.
 
 ## Assumptions
 
@@ -76,10 +76,10 @@ Risk levels to be assessed during technical and design discovery.
 - User is currently managing workflow across two separate tools (Plane for project work, Apple Notes for daily tasks)
 
 **Timeline Constraints:**
-- Stated as "Nice to have — no rush"
+- Stated as "Nice to have - no rush"
 
 **Resource Constraints:**
-To be determined — requires resource allocation and prioritization discussion.
+To be determined - requires resource allocation and prioritization discussion.
 
 ## Scope
 
