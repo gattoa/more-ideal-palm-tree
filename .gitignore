@@ -1,5 +1,6 @@
 # Supabase
 .env
+.temp
 
 # Logs
 logs
