@@ -7,11 +7,66 @@
     <title>Today</title>
   </head>
   <body>
+    <dialog class="auth-dialog" aria-label="Account">
+      <div class="auth-dialog__auth-view">
+        <header class="auth-dialog__header">
+          <span class="auth-dialog__mark" aria-hidden="true">Today</span>
+          <form method="dialog">
+            <button class="auth-dialog__close" aria-label="Dismiss">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </form>
+        </header>
+        <p class="auth-dialog__lead">Keep your steps with you, across every device.</p>
+        <div class="auth-dialog__tabs" role="tablist">
+          <button class="auth-dialog__tab is-active" role="tab" data-mode="signup" aria-selected="true">Create account</button>
+          <button class="auth-dialog__tab" role="tab" data-mode="signin" aria-selected="false">Sign in</button>
+        </div>
+        <form class="auth-dialog__form" novalidate>
+          <div class="auth-dialog__field">
+            <label class="auth-dialog__label" for="auth-email">Email</label>
+            <input class="auth-dialog__input" id="auth-email" type="email" name="email" autocomplete="email" required />
+          </div>
+          <div class="auth-dialog__field">
+            <label class="auth-dialog__label" for="auth-password">Password</label>
+            <input class="auth-dialog__input" id="auth-password" type="password" name="password" autocomplete="current-password" required />
+          </div>
+          <p class="auth-dialog__error" role="alert" hidden></p>
+          <button class="auth-dialog__submit" type="submit">
+            <span class="auth-dialog__submit-label">Create account</span>
+            <span class="auth-dialog__submit-arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+      </div>
+      <div class="auth-dialog__user-view" hidden>
+        <header class="auth-dialog__header">
+          <span class="auth-dialog__mark" aria-hidden="true">Account</span>
+          <form method="dialog">
+            <button class="auth-dialog__close" aria-label="Dismiss">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </form>
+        </header>
+        <p class="auth-dialog__user-email"></p>
+        <button class="auth-dialog__sign-out" type="button">
+          <span>Sign out</span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </dialog>
+
     <div id="app" class="todo-app">
       <header class="todo-app__header">
         <p class="todo-app__eyebrow" aria-hidden="true"></p>
         <h1 class="todo-app__title">Today</h1>
         <p class="todo-app__progress" aria-live="polite"></p>
+        <button class="todo-app__account-button" type="button" aria-label="Account" aria-haspopup="dialog">
+          <i data-lucide="user"></i>
+        </button>
       </header>
 
       <form class="todo-app__form" aria-label="Add a new step">

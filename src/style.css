@@ -230,7 +230,15 @@ button:focus-visible {
 
 .todo-app__header {
   display: grid;
+  grid-template-columns: 1fr auto;
   gap: var(--space-xs);
+  align-items: start;
+}
+
+.todo-app__eyebrow,
+.todo-app__title,
+.todo-app__progress {
+  grid-column: 1;
 }
 
 .todo-app__eyebrow {
@@ -551,4 +559,313 @@ button:focus-visible {
   .todo-app__add-button {
     justify-self: start;
   }
+}
+
+/* ─── Account Button ───────────────────────────────────────────────────────── */
+
+.todo-app__account-button {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: var(--radius-xl);
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.todo-app__account-button svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  display: block;
+  flex-shrink: 0;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.todo-app__account-button:hover {
+  background: color-mix(in oklab, var(--color-surface) 70%, transparent);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Initials avatar — shown when signed in */
+.todo-app__account-button::after {
+  content: attr(data-initial);
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: var(--font-family-body);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0;
+  border-radius: inherit;
+}
+
+.todo-app__account-button.is-signed-in {
+  border-color: color-mix(in oklab, var(--color-primary) 30%, var(--color-border) 70%);
+}
+
+.todo-app__account-button.is-signed-in svg {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.todo-app__account-button.is-signed-in::after {
+  display: flex;
+}
+
+.todo-app__account-button.is-signed-in:hover {
+  background: transparent;
+  border-color: var(--color-primary-hover);
+}
+
+.todo-app__account-button.is-signed-in:hover::after {
+  background: var(--color-primary-hover);
+}
+
+/* ─── Auth Dialog ────────────────────────────────────────────────────────── */
+
+@keyframes dialog-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.auth-dialog {
+  margin: auto;
+  width: min(26rem, calc(100vw - 2 * var(--space-xl)));
+  padding: calc(var(--space-xl) * 1.5);
+  background:
+    radial-gradient(110% 65% at 0% 0%, color-mix(in oklab, var(--brand-100) 22%, transparent), transparent 55%),
+    var(--neutral-0);
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 0 0 4px color-mix(in oklab, var(--brand-200) 18%, transparent),
+    0 16px 48px color-mix(in oklab, var(--neutral-900) 12%, transparent),
+    0 4px 12px color-mix(in oklab, var(--neutral-900) 6%, transparent);
+}
+
+.auth-dialog[open] {
+  display: grid;
+  gap: var(--space-xl);
+  animation: dialog-rise 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-dialog::backdrop {
+  background: color-mix(in oklab, var(--neutral-800) 32%, transparent);
+  backdrop-filter: blur(3px);
+  animation: backdrop-in 0.22s ease both;
+}
+
+/* Header */
+
+.auth-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.auth-dialog__mark {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-heading);
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  letter-spacing: -0.02em;
+  color: color-mix(in oklab, var(--color-text) 80%, var(--color-primary) 20%);
+}
+
+.auth-dialog__close {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border-color: transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  box-shadow: none;
+}
+
+.auth-dialog__close:hover {
+  background: color-mix(in oklab, var(--color-surface-subtle) 70%, transparent);
+  border-color: transparent;
+  color: var(--color-text);
+}
+
+/* Lead text */
+
+.auth-dialog__lead {
+  margin: calc(var(--space-xl) * -0.5) 0 0;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-muted);
+}
+
+/* Tabs */
+
+.auth-dialog__tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: var(--border-width-sm) solid var(--color-border);
+}
+
+.auth-dialog__tab {
+  position: relative;
+  padding: 0 0 var(--space-sm);
+  margin: 0 var(--space-xl) calc(-1 * var(--border-width-sm)) 0;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-text-muted);
+}
+
+.auth-dialog__tab:hover {
+  background: transparent;
+  border-color: transparent;
+  border-bottom-color: color-mix(in oklab, var(--color-border) 80%, transparent);
+  color: var(--color-text);
+}
+
+.auth-dialog__tab.is-active {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  border-bottom-color: var(--color-primary);
+  background: transparent;
+}
+
+.auth-dialog__tab.is-active:hover {
+  background: transparent;
+  border-bottom-color: var(--color-primary-hover);
+}
+
+/* Form */
+
+.auth-dialog__form {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.auth-dialog__field {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.auth-dialog__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.auth-dialog__input {
+  box-sizing: border-box;
+  min-height: 2.875rem;
+  border: var(--border-width-sm) solid color-mix(in oklab, var(--color-border) 80%, var(--brand-200) 20%);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--color-bg) 70%, var(--neutral-0) 30%);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-body);
+  transition: border-color var(--motion-fast) var(--motion-ease);
+}
+
+.auth-dialog__input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.auth-dialog__input:focus,
+.auth-dialog__input:focus-visible {
+  outline: none;
+  border-color: color-mix(in oklab, var(--color-primary) 55%, var(--color-border) 45%);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-focus-ring) 40%, transparent);
+}
+
+.auth-dialog__error {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  line-height: var(--line-height-normal);
+}
+
+/* User view (signed in) */
+
+.auth-dialog__user-email {
+  margin: calc(var(--space-xl) * -0.5) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  word-break: break-all;
+  line-height: var(--line-height-relaxed);
+}
+
+.auth-dialog__sign-out {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.auth-dialog__sign-out:hover {
+  background: color-mix(in oklab, var(--color-surface-subtle) 60%, transparent);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Submit */
+
+.auth-dialog__submit {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  margin-top: var(--space-xs);
+}
+
+.auth-dialog__submit-arrow {
+  font-size: 1.1em;
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+
+.auth-dialog__submit:hover .auth-dialog__submit-arrow {
+  transform: translateX(3px);
 }
