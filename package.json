@@ -9,9 +9,14 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "supabase": "^2.76.15",
     "vite": "^7.3.1"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "supabase"]
+  },
   "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
     "lucide": "^0.575.0"
   }
 }

@@ -1,5 +1,6 @@
 import './style.css'
 import { createIcons, Plus, X } from 'lucide'
+import { supabase } from './supabase.js'
 
 // ─── DOM ────────────────────────────────────────────────────────────────────
 
@@ -24,8 +25,7 @@ if (eyebrow) {
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
-const todos = []
-let nextTodoId = 1
+let todos = []
 const renderedIds = new Set()
 
 // ─── Icons ──────────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ function renderTodos() {
     toggle.className = 'todo-item__toggle'
     toggle.type = 'checkbox'
     toggle.checked = todo.completed
-    toggle.dataset.todoId = String(todo.id)
+    toggle.dataset.todoId = todo.id
     toggle.setAttribute('aria-label', `Mark "${todo.text}" as complete`)
 
     const text = document.createElement('p')
@@ -95,10 +95,9 @@ function renderTodos() {
     const deleteButton = document.createElement('button')
     deleteButton.className = 'todo-item__delete-button'
     deleteButton.type = 'button'
-    deleteButton.dataset.todoId = String(todo.id)
+    deleteButton.dataset.todoId = todo.id
     deleteButton.setAttribute('aria-label', `Delete "${todo.text}"`)
 
-    // Lucide icon placeholder — replaced by hydrateIcons() below
     const icon = document.createElement('i')
     icon.dataset.lucide = 'x'
     deleteButton.append(icon)
@@ -107,9 +106,90 @@ function renderTodos() {
     itemsContainer.append(item)
   }
 
-  // Replace all data-lucide placeholders with real SVGs
   hydrateIcons()
   updateProgress()
+}
+
+// ─── Supabase ────────────────────────────────────────────────────────────────
+
+async function loadTodos() {
+  const { data, error } = await supabase
+    .from('todos')
+    .select('*')
+    .order('created_at', { ascending: true })
+
+  if (error) {
+    console.error('Failed to load todos:', error.message)
+    return
+  }
+
+  todos = data
+  // Mark all initially-loaded todos as already rendered (no entry animation)
+  for (const todo of todos) {
+    renderedIds.add(todo.id)
+  }
+  renderTodos()
+}
+
+async function addTodo(text) {
+  const { data, error } = await supabase
+    .from('todos')
+    .insert({ text, completed: false })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Failed to add todo:', error.message)
+    return
+  }
+
+  todos.push(data)
+  renderTodos()
+}
+
+async function toggleTodo(id, completed) {
+  const { error } = await supabase
+    .from('todos')
+    .update({ completed })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Failed to update todo:', error.message)
+    // Revert optimistic update
+    const todo = todos.find((t) => t.id === id)
+    if (todo) todo.completed = !completed
+    renderTodos()
+    return
+  }
+
+  const todo = todos.find((t) => t.id === id)
+  if (todo) todo.completed = completed
+  renderTodos()
+}
+
+async function deleteTodo(id, itemEl, deleteButton) {
+  deleteButton.disabled = true
+
+  const { error } = await supabase.from('todos').delete().eq('id', id)
+
+  if (error) {
+    console.error('Failed to delete todo:', error.message)
+    deleteButton.disabled = false
+    return
+  }
+
+  renderedIds.delete(id)
+
+  if (itemEl) {
+    itemEl.classList.add('is-removing')
+    setTimeout(() => {
+      todos = todos.filter((t) => t.id !== id)
+      renderTodos()
+    }, 210)
+  } else {
+    todos = todos.filter((t) => t.id !== id)
+    renderTodos()
+  }
 }
 
 // ─── Events ─────────────────────────────────────────────────────────────────
@@ -118,23 +198,22 @@ form.addEventListener('submit', (event) => {
   event.preventDefault()
   const text = input.value.trim()
   if (!text) return
-  todos.push({ id: nextTodoId, text, completed: false })
-  nextTodoId += 1
   input.value = ''
   input.focus()
-  renderTodos()
+  addTodo(text)
 })
 
 itemsContainer.addEventListener('change', (event) => {
   const target = event.target
   if (!(target instanceof HTMLInputElement) || !target.matches('.todo-item__toggle')) return
 
-  const todoId = Number(target.dataset.todoId)
-  const todo = todos.find((entry) => entry.id === todoId)
+  const id = target.dataset.todoId
+  // Optimistic update
+  const todo = todos.find((t) => t.id === id)
   if (!todo) return
-
   todo.completed = target.checked
   renderTodos()
+  toggleTodo(id, target.checked)
 })
 
 itemsContainer.addEventListener('click', (event) => {
@@ -144,27 +223,12 @@ itemsContainer.addEventListener('click', (event) => {
   const deleteButton = target.closest('.todo-item__delete-button')
   if (!deleteButton || !(deleteButton instanceof HTMLButtonElement)) return
 
-  const todoId = Number(deleteButton.dataset.todoId)
-  const todoIndex = todos.findIndex((entry) => entry.id === todoId)
-  if (todoIndex === -1) return
-
+  const id = deleteButton.dataset.todoId
   const itemEl = deleteButton.closest('.todo-item')
-  renderedIds.delete(todoId)
-
-  if (itemEl) {
-    itemEl.classList.add('is-removing')
-    deleteButton.disabled = true
-    setTimeout(() => {
-      todos.splice(todoIndex, 1)
-      renderTodos()
-    }, 210)
-  } else {
-    todos.splice(todoIndex, 1)
-    renderTodos()
-  }
+  deleteTodo(id, itemEl, deleteButton)
 })
 
 // ─── Init ───────────────────────────────────────────────────────────────────
 
 hydrateIcons()
-renderTodos()
+loadTodos()
