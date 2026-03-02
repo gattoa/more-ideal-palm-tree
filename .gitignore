@@ -2,6 +2,9 @@
 .env
 .temp
 
+# Research archives (raw research artifacts, superseded by build-ready docs)
+docs/research-archive/
+
 # Logs
 logs
 *.log
