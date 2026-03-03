@@ -53,6 +53,7 @@ const authErrorEl = document.querySelector('.auth-dialog__error')
 const authSubmitButton = document.querySelector('.auth-dialog__submit')
 const authSubmitLabel = document.querySelector('.auth-dialog__submit-label')
 const authTabs = document.querySelectorAll('.auth-dialog__tab')
+const authPasswordToggle = document.querySelector('.auth-dialog__password-toggle')
 
 const accountButton = document.querySelector('.todo-app__account-button')
 const authDialogUserEmail = document.querySelector('.auth-dialog__user-email')
@@ -1091,6 +1092,15 @@ authTabs.forEach((tab) => {
   })
 })
 
+authPasswordToggle?.addEventListener('click', () => {
+  if (!authPasswordInput) return
+  const isHidden = authPasswordInput.type === 'password'
+  authPasswordInput.type = isHidden ? 'text' : 'password'
+  authPasswordToggle.classList.toggle('is-visible', isHidden)
+  authPasswordToggle.setAttribute('aria-pressed', String(isHidden))
+  authPasswordToggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password')
+})
+
 authForm?.addEventListener('submit', async (event) => {
   event.preventDefault()
   const email = authEmailInput?.value.trim() ?? ''
@@ -1105,6 +1115,10 @@ authForm?.addEventListener('submit', async (event) => {
   clearAuthError()
 
   if (authMode === 'signup') {
+    const { data: sessionData } = await getSession()
+    const anonUserId = sessionData.session?.user?.id ?? null
+    const wasAnonymous = sessionData.session?.user?.is_anonymous ?? false
+
     const { data: signUpData, error } = await signUp(email, password)
     if (error) {
       showAuthError(error.message)
@@ -1118,6 +1132,14 @@ authForm?.addEventListener('submit', async (event) => {
       authSubmitButton.disabled = false
       return
     }
+
+    if (wasAnonymous && anonUserId && signUpData?.session) {
+      const { error: rpcError } = await claimAnonymousTodos(anonUserId)
+      if (rpcError) {
+        console.error('Failed to migrate anonymous steps on signup:', rpcError.message)
+      }
+    }
+
     closeAuthDialog()
   } else {
     const { data: sessionData } = await getSession()

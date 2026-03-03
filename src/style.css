@@ -1497,7 +1497,7 @@ button.todo-item__journey-badge[data-journey-slug="foundations"].is-open {
 /* Lead text */
 
 .auth-dialog__lead {
-  margin: calc(var(--space-xl) * -0.5) 0 0;
+  margin: var(--space-sm) 0 0;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
   color: var(--color-text-muted);
@@ -1556,6 +1556,17 @@ button.todo-item__journey-badge[data-journey-slug="foundations"].is-open {
   gap: var(--space-xs);
 }
 
+.auth-dialog__field--password {
+  gap: var(--space-2xs);
+}
+
+.auth-dialog__password-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
 .auth-dialog__label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -1567,15 +1578,53 @@ button.todo-item__journey-badge[data-journey-slug="foundations"].is-open {
 
 .auth-dialog__input {
   box-sizing: border-box;
+  width: 100%;
   min-height: 2.875rem;
   border: var(--border-width-sm) solid color-mix(in oklab, var(--color-border) 80%, var(--brand-200) 20%);
   border-radius: var(--radius-lg);
   background: color-mix(in oklab, var(--color-bg) 70%, var(--neutral-0) 30%);
   color: var(--color-text);
-  padding: var(--space-sm) var(--space-lg);
+  padding: var(--space-sm) calc(var(--space-lg) * 1.75) var(--space-sm) var(--space-lg);
   font-size: var(--font-size-md);
   font-family: var(--font-family-body);
   transition: border-color var(--motion-fast) var(--motion-ease);
+}
+
+.auth-dialog__password-toggle {
+  position: absolute;
+  top: 50%;
+  right: var(--space-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  width: 1.75rem;
+  height: 1.75rem;
+  transform: translateY(-50%);
+}
+
+.auth-dialog__password-toggle:hover {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+}
+
+.auth-dialog__password-icon {
+  display: inline-flex;
+}
+
+.auth-dialog__password-icon--visible {
+  display: none;
+}
+
+.auth-dialog__password-toggle.is-visible .auth-dialog__password-icon--hidden {
+  display: none;
+}
+
+.auth-dialog__password-toggle.is-visible .auth-dialog__password-icon--visible {
+  display: inline-flex;
 }
 
 .auth-dialog__input::placeholder {
@@ -1628,12 +1677,13 @@ button.todo-item__journey-badge[data-journey-slug="foundations"].is-open {
 /* Submit */
 
 .auth-dialog__submit {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md) var(--space-lg);
-  margin-top: var(--space-xs);
+  margin-top: var(--space-md);
+  justify-self: end;
+  width: auto;
 }
 
 .auth-dialog__submit-arrow {

@@ -3,7 +3,7 @@ import { supabase } from './supabase.js'
 export const signInAnonymously = () => supabase.auth.signInAnonymously()
 
 export const signUp = (email, password) =>
-  supabase.auth.updateUser({ email, password })
+  supabase.auth.signUp({ email, password })
 
 export const signIn = (email, password) =>
   supabase.auth.signInWithPassword({ email, password })
