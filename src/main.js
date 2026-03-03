@@ -12,6 +12,7 @@ import {
 } from './auth.js'
 import { loadPaths, createPath, addStepToPath, removeStepFromPath, loadStepPathsMap } from './paths.js'
 import { loadMilestones, createMilestone, calculateProgress } from './milestones.js'
+import { renderWeekView } from './week-view.js'
 
 // ─── DOM ────────────────────────────────────────────────────────────────────
 
@@ -37,6 +38,8 @@ const milestonePickerDropdown = document.querySelector('.milestone-picker__dropd
 const milestonePickerOptions = document.querySelector('.milestone-picker__options')
 const milestonePickerLabel = document.querySelector('.milestone-picker__label')
 const milestonePickerCreateInput = document.querySelector('.milestone-picker__create-input')
+
+const weekViewContainer = document.querySelector('.week-view')
 
 const authDialog = document.querySelector('.auth-dialog')
 const authAuthView = document.querySelector('.auth-dialog__auth-view')
@@ -743,6 +746,14 @@ function renderSteps() {
 
   hydrateIcons()
   updateProgress()
+  refreshWeekView()
+}
+
+// ─── Week View ──────────────────────────────────────────────────────────────
+
+function refreshWeekView() {
+  if (!weekViewContainer || weekViewContainer.hidden) return
+  renderWeekView(weekViewContainer, { paths, steps, stepPathsMap, milestones, journeys })
 }
 
 // ─── Supabase CRUD ───────────────────────────────────────────────────────────
@@ -806,15 +817,19 @@ async function addStep(text, journeyId) {
     return
   }
 
-  // Associate with selected path if any
-  if (selectedPathId) {
-    const ok = await addStepToPath(data.id, selectedPathId)
-    if (ok) {
-      const path = paths.find((p) => p.id === selectedPathId)
-      if (path) {
-        stepPathsMap.set(data.id, [{ id: path.id, name: path.name }])
+  try {
+    // Associate with selected path if any, but never block rendering the new step
+    if (selectedPathId) {
+      const ok = await addStepToPath(data.id, selectedPathId)
+      if (ok) {
+        const path = paths.find((p) => p.id === selectedPathId)
+        if (path) {
+          stepPathsMap.set(data.id, [{ id: path.id, name: path.name }])
+        }
       }
     }
+  } catch (assocError) {
+    console.error('Failed to associate step with path:', assocError)
   }
 
   steps.push(data)
