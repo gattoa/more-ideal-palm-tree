@@ -1306,6 +1306,79 @@ button.todo-item__journey-badge[data-journey-slug="foundations"].is-open {
   height: 1.25rem;
 }
 
+/* ─── View Navigation ────────────────────────────────────────────────────── */
+
+.view-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: var(--border-width-sm) solid var(--color-border);
+}
+
+.view-nav__tab {
+  position: relative;
+  padding: var(--space-xs) 0 var(--space-sm);
+  margin: 0 var(--space-xl) calc(-1 * var(--border-width-sm)) 0;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-text-muted);
+  box-shadow: none;
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    border-bottom-color var(--motion-fast) var(--motion-ease);
+}
+
+.view-nav__tab:hover {
+  background: transparent;
+  border-color: transparent;
+  border-bottom-color: color-mix(in oklab, var(--color-border) 80%, transparent);
+  color: var(--color-text);
+}
+
+.view-nav__tab.is-active {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  border-bottom-color: var(--color-primary);
+  background: transparent;
+}
+
+.view-nav__tab.is-active:hover {
+  background: transparent;
+  border-bottom-color: var(--color-primary-hover);
+}
+
+/* View container transitions */
+.todo-app__items,
+.week-view {
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+/* ─── Breadcrumb ─────────────────────────────────────────────────────────── */
+
+.todo-item__breadcrumb {
+  grid-column: 2 / -1;
+  margin-top: calc(-1 * var(--space-xs));
+  font-size: 0.68rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.todo-item__breadcrumb-sep {
+  color: var(--color-border);
+  padding: 0 0.15em;
+}
+
+.todo-item__breadcrumb-segment--journey { color: var(--color-text-muted); }
+.todo-item__breadcrumb-segment--path { color: var(--color-text-muted); opacity: 0.8; }
+.todo-item__breadcrumb-segment--milestone { color: var(--color-text-muted); opacity: 0.7; }
+
 .is-hidden {
   display: none !important;
 }

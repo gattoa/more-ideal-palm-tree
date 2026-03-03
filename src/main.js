@@ -13,6 +13,7 @@ import {
 import { loadPaths, createPath, addStepToPath, removeStepFromPath, loadStepPathsMap } from './paths.js'
 import { loadMilestones, createMilestone, calculateProgress } from './milestones.js'
 import { renderWeekView } from './week-view.js'
+import { getView, setView, buildBreadcrumb } from './views.js'
 
 // ─── DOM ────────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,7 @@ const milestonePickerLabel = document.querySelector('.milestone-picker__label')
 const milestonePickerCreateInput = document.querySelector('.milestone-picker__create-input')
 
 const weekViewContainer = document.querySelector('.week-view')
+const viewNavTabs = document.querySelectorAll('.view-nav__tab')
 
 const authDialog = document.querySelector('.auth-dialog')
 const authAuthView = document.querySelector('.auth-dialog__auth-view')
@@ -86,6 +88,7 @@ let currentUserId = null
 let isAnonymousUser = true
 const renderedIds = new Set()
 let authMode = 'signup' // 'signup' | 'signin'
+let savedScrollTop = 0
 
 // ─── Icons ──────────────────────────────────────────────────────────────────
 
@@ -718,6 +721,10 @@ function renderSteps() {
       actions.append(itemPicker, deleteButton)
       item.append(tileDot, text, timestamp, actions)
 
+      // Breadcrumb: Journey › Path › Milestone (only if 2+ segments)
+      const breadcrumb = buildBreadcrumb(step, { journeys, paths, milestones, stepPathsMap })
+      if (breadcrumb) item.append(breadcrumb)
+
       // Metadata row: path badges + milestone progress (below main content)
       const hasPaths = pathBadgesEl != null
       const milestone = step.milestones
@@ -772,6 +779,44 @@ function refreshWeekView() {
   if (!weekViewContainer || weekViewContainer.hidden) return
   renderWeekView(weekViewContainer, { paths, steps, stepPathsMap, milestones, journeys })
 }
+
+// ─── View Navigation ────────────────────────────────────────────────────────
+
+viewNavTabs.forEach((tab) => {
+  tab.addEventListener('click', () => {
+    setView(tab.dataset.view)
+  })
+})
+
+document.addEventListener('viewchange', (event) => {
+  const view = event.detail.view
+
+  // Update tab active states
+  viewNavTabs.forEach((tab) => {
+    const isActive = tab.dataset.view === view
+    tab.classList.toggle('is-active', isActive)
+    tab.setAttribute('aria-pressed', String(isActive))
+  })
+
+  if (view === 'today') {
+    // Show today, hide week
+    if (weekViewContainer) weekViewContainer.hidden = true
+    itemsContainer.hidden = false
+    form.hidden = false
+    // Restore scroll position
+    window.scrollTo(0, savedScrollTop)
+  } else if (view === 'week') {
+    // Save scroll position before switching
+    savedScrollTop = window.scrollY
+    // Show week, hide today
+    itemsContainer.hidden = true
+    form.hidden = true
+    if (weekViewContainer) {
+      weekViewContainer.hidden = false
+      refreshWeekView()
+    }
+  }
+})
 
 // ─── Supabase CRUD ───────────────────────────────────────────────────────────
 
