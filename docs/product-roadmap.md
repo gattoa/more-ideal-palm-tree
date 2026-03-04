@@ -188,9 +188,41 @@ Milestone progress bars never show a warning state. A milestone at 10% is 10% fu
 
 ---
 
+## Phase 2.5 — Sort, Filter, Archive & Delete
+
+*Give users lightweight control over how they view and manage their steps. Preserve the accumulation record while allowing genuine corrections.*
+
+### Goals
+
+1. Sort & Filter controls on the Today view — weightless, opt-in, zero complexity
+2. Establish Archive as the default completion path, preserving the accumulation record
+3. Provide Delete as a distinct, intentional action for correcting errors
+
+### Key Deliverables
+
+**Sort & Filter**
+- Chips or controls above `section.todo-app_items` to arrange items by journey, milestone, path, or step (alphabetically or chronologically)
+- Visual treatment and interactions must feel weightless — consistent with the Interaction Weight Constraint
+- Click to toggle sort direction; no additional complexity or configuration
+- Sorting is opt-in, not default — respects Step Equality principle (chronological default preserved)
+
+**Archive & Delete**
+- **Archive**: Completed steps are archived, not trashed. The journey tracks progress and purpose — if we delete records of what we've done, we won't know how many steps we've taken or how far we've come. Archived steps continue to feed all framework visualizations and accumulation metrics.
+- **Delete**: Reserved for actual errors — typos, duplicates, mistakes. When the intent is to remove an item from the records entirely. Deleted items are not tracked. This is a deliberate, distinct action from archiving.
+
+### Brand Guard
+
+Sort & Filter chips must not make the Today view feel heavier. They should feel like a gentle resorting of the same weightless content — not a toolbar or dashboard control.
+
+Archive reinforces the core brand promise: accumulation over completion. Nothing meaningful is ever lost.
+
+---
+
 ## Phase 3 — Framework Visualizations (Wheel + PERMA)
 
-*Surface the meaning layer. Behavioral data becomes a coherent picture of life balance and well-being — without questionnaires.*
+*Surface the meaning layer. This phase brings the Journey hemisphere to life — an exclusively data-exploration space where users reflect on their progress and see how their inputs accumulate within the Wheel of Life, PERMA, and Ikigai frameworks. Behavioral data becomes a coherent picture of life balance and well-being — without questionnaires.*
+
+The Journey hemisphere is not task-oriented like Today. It exists for users to feel satisfaction, fulfillment, and gain powerful understanding of their habits and their place within the journey of life. Every visualization here must serve that reflective, exploratory purpose.
 
 ### Goals
 
@@ -198,6 +230,7 @@ Milestone progress bars never show a warning state. A milestone at 10% is 10% fu
 2. PERMA signal bars derived entirely from behavioral data
 3. Topographic View (month-level) shows Milestone network with pace estimates
 4. Zoom stack complete: Street → Trail → Topographic → Satellite
+5. Journey hemisphere established as the exclusive home for data exploration and framework-driven insight
 
 ### Key Deliverables
 
@@ -252,6 +285,10 @@ Milestone progress bars never show a warning state. A milestone at 10% is 10% fu
 - [ ] Pace estimate never uses deadline/failure/urgency language
 - [ ] Full zoom stack navigates without data reload (load once, render per view)
 - [ ] Satellite View feels like a quiet overview, not a dashboard of demands
+
+### Data Visualization
+
+Detailed data visualization specifications for the Journey hemisphere are to be defined. See `visualization-spec.md` for the existing visual language foundation. Visualization design will be informed by the Journey hemisphere's exclusive focus on data exploration, reflection, and framework-driven insight.
 
 ### Brand Guard
 
@@ -356,9 +393,14 @@ Phase 2 (Paths + Milestones + Trail)
   ├─ unlocks Milestone data for PERMA Accomplishment + Topographic View (Phase 3)
   └─ unlocks Ikigai per-Path signals (Phase 4)
 
-Phase 3 (Wheel + PERMA)
+Phase 2.5 (Sort, Filter, Archive & Delete)
+  ├─ requires data tiers from Phase 2 (journey, milestone, path sorting)
+  └─ Archive establishes accumulation record that feeds Phase 3 visualizations
+
+Phase 3 (Wheel + PERMA + Journey Hemisphere)
   ├─ requires Path associations from Phase 2
-  └─ requires Milestone completion from Phase 2
+  ├─ requires Milestone completion from Phase 2
+  └─ requires archived step history from Phase 2.5
 
 Phase 4 (Ikigai + PWA + Polish)
   ├─ requires Paths from Phase 2
@@ -417,5 +459,6 @@ Phase 4 (Ikigai + PWA + Polish)
 |-------|-------|-----------------|------------|
 | **1** | Refine the Foundation | Design principles, documentation alignment, empty state | No DB changes |
 | **2** | Paths, Milestones, Trail | Path/Milestone CRUD, Trail View, zoom nav | `step_paths` junction; extend `paths` + `milestones` |
-| **3** | Framework Visualizations | Balance Wheel, PERMA bars (behavioral inference), Topographic View | No DB changes |
+| **2.5** | Sort, Filter, Archive & Delete | Sort/filter chips, archive vs. delete distinction | TBD |
+| **3** | Framework Visualizations | Balance Wheel, PERMA bars (behavioral inference), Topographic View, Journey hemisphere | No DB changes |
 | **4** | Ikigai, Polish, PWA | Ikigai indicators, offline support, Journey customization | Ikigai fields on `paths`; `is_hidden` + `color_key` on `journeys` |

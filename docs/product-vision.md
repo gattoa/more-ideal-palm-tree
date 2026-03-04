@@ -45,7 +45,7 @@ These constraints govern all feature design and implementation decisions.
 The application operates in two distinct hemispheres:
 
 - **Today hemisphere** — Present-focused, action-oriented. Shows today's steps as simple accumulation. No averages, comparisons, streaks, or performance metrics. The counter ("X steps today") is a tally, not a score.
-- **Journey hemisphere** — Retrospective, pattern-recognizing. Rolling averages, PERMA inference, progress visualizations, and trend data live here. Separate views, separate mental mode.
+- **Journey hemisphere** — Retrospective, pattern-recognizing. This hemisphere (currently surfaced as "Week") is not task-oriented like Today. It is a place for users to reflect on and explore their progress — to see how their inputs accumulate within the established frameworks of the Wheel of Life, PERMA, and Ikigai. Rolling averages, PERMA inference, progress visualizations, and trend data live here exclusively. This hemisphere is explicitly and exclusively for data exploration, using powerful and accurate visualizations that help users feel satisfaction, fulfillment, and gain a deeper understanding of their habits and their place within the journey of life. Separate views, separate mental mode.
 
 This is an architectural boundary. Features must not bleed between hemispheres.
 
@@ -143,9 +143,14 @@ Rooted in the Wheel of Life framework. Shipped as defaults, user-customizable.
 ## Core Features
 
 ### Step Management
-- Create, edit, delete Steps
+- Create, edit, archive, and delete Steps
 - Mark Steps as complete or uncomplete
 - Tag Steps with Journey, Path, and/or Milestone
+
+#### Archive vs. Delete
+
+- **Archive** — Completed steps are archived, not trashed. The journey tracks our progress and purpose. If we delete records of what we've done, we won't know how many steps we've taken or how far we've come. Archiving preserves the accumulation that powers every visualization and framework insight.
+- **Delete** — Reserved for actual errors. When the intent is to remove an item from the records entirely — a typo entry, a duplicate, a mistake. Deleted items are not tracked or recoverable. This is a deliberate, distinct action from archiving.
 
 ### Progress Tracking
 - Aggregated views across day, week, month, and year
