@@ -126,17 +126,15 @@
     <div id="app" class="todo-app">
       <header class="todo-app__header">
         <p class="todo-app__eyebrow" aria-hidden="true"></p>
-        <h1 class="todo-app__title">Today</h1>
+        <nav class="todo-app__title-nav" aria-label="View">
+          <button class="todo-app__title-link is-active" type="button" data-view="today" aria-pressed="true">Today</button>
+          <button class="todo-app__title-link" type="button" data-view="week" aria-pressed="false">Week</button>
+        </nav>
         <p class="todo-app__progress" aria-live="polite"></p>
         <button class="todo-app__account-button" type="button" aria-label="Account" aria-haspopup="dialog">
           <i data-lucide="user"></i>
         </button>
       </header>
-
-      <nav class="view-nav" aria-label="View">
-        <button class="view-nav__tab is-active" type="button" data-view="today" aria-pressed="true">Today</button>
-        <button class="view-nav__tab" type="button" data-view="week" aria-pressed="false">This Week</button>
-      </nav>
 
       <form class="todo-app__form" aria-label="Add a new step">
         <label class="todo-app__label" for="todo-input">New step</label>

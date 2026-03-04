@@ -27,7 +27,7 @@ const journeyContextBtn = document.querySelector('.journey-context')
 const journeyContextName = document.querySelector('.journey-context__name')
 
 const weekViewContainer = document.querySelector('.week-view')
-const viewNavTabs = document.querySelectorAll('.view-nav__tab')
+const viewNavTabs = document.querySelectorAll('.todo-app__title-link')
 
 const authDialog = document.querySelector('.auth-dialog')
 const authAuthView = document.querySelector('.auth-dialog__auth-view')

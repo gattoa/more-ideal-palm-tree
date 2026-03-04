@@ -283,7 +283,7 @@ button:focus-visible {
 }
 
 .todo-app__eyebrow,
-.todo-app__title,
+.todo-app__title-nav,
 .todo-app__progress {
   grid-column: 1;
 }
@@ -299,8 +299,20 @@ button:focus-visible {
   min-height: 1em;
 }
 
-.todo-app__title {
+.todo-app__title-nav {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: baseline;
+  grid-column: 1;
+}
+
+.todo-app__title-link {
   margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   font-family: var(--font-family-heading);
   font-size: clamp(3.25rem, 8vw, 5rem);
   font-weight: var(--font-weight-heading);
@@ -309,6 +321,19 @@ button:focus-visible {
   letter-spacing: -0.03em;
   line-height: 1;
   color: color-mix(in oklab, var(--color-text) 85%, var(--color-primary) 15%);
+  opacity: 0.25;
+  cursor: pointer;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.todo-app__title-link:hover {
+  background: transparent;
+  opacity: 0.5;
+}
+
+.todo-app__title-link.is-active {
+  opacity: 1;
+  cursor: default;
 }
 
 .todo-app__progress {
@@ -911,50 +936,6 @@ button:focus-visible {
   height: 1.25rem;
 }
 
-/* ─── View Navigation ────────────────────────────────────────────────────── */
-
-.view-nav {
-  display: flex;
-  gap: 0;
-  border-bottom: var(--border-width-sm) solid var(--color-border);
-}
-
-.view-nav__tab {
-  position: relative;
-  padding: var(--space-xs) 0 var(--space-sm);
-  margin: 0 var(--space-xl) calc(-1 * var(--border-width-sm)) 0;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: var(--letter-spacing-wide);
-  color: var(--color-text-muted);
-  box-shadow: none;
-  transition:
-    color var(--motion-fast) var(--motion-ease),
-    border-bottom-color var(--motion-fast) var(--motion-ease);
-}
-
-.view-nav__tab:hover {
-  background: transparent;
-  border-color: transparent;
-  border-bottom-color: color-mix(in oklab, var(--color-border) 80%, transparent);
-  color: var(--color-text);
-}
-
-.view-nav__tab.is-active {
-  color: var(--color-text);
-  font-weight: var(--font-weight-semibold);
-  border-bottom-color: var(--color-primary);
-  background: transparent;
-}
-
-.view-nav__tab.is-active:hover {
-  background: transparent;
-  border-bottom-color: var(--color-primary-hover);
-}
 
 /* View container transitions */
 .todo-app__items,
