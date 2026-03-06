@@ -1,0 +1,18 @@
+{
+  "pageTitle": "Today",
+  "formLabel": "New step",
+  "placeholder": "What's your next step?",
+  "journeyDefault": "Journey",
+  "addStepAria": "Add step",
+  "formAria": "Add a new step",
+  "emptyState": "Every journey starts with a single step.",
+  "progressTemplate": "{{count}} {{noun}} today",
+  "stepSingular": "step",
+  "stepPlural": "steps",
+  "viewNavAria": "View",
+  "todayTab": "Today",
+  "weekTab": "Week",
+  "itemsAria": "Today's steps",
+  "weekSectionAria": "This week's activity",
+  "currentJourneyAria": "Current journey"
+}

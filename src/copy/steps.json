@@ -1,0 +1,16 @@
+{
+  "journey": "Journey",
+  "paths": "Paths",
+  "addPathPlaceholder": "+ path",
+  "addPathAria": "Add path",
+  "milestone": "Milestone",
+  "milestoneNone": "None",
+  "addMilestonePlaceholder": "+ milestone",
+  "addMilestoneAria": "Create milestone",
+  "markComplete": "Mark complete",
+  "stepDetails": "Step details",
+  "editStepAria": "Edit step text",
+  "removePathAria": "Remove {{pathName}}",
+  "deleteStepAria": "Delete \"{{stepText}}\"",
+  "thisStep": "this step"
+}
