@@ -7,11 +7,11 @@
     <title>Today</title>
   </head>
   <body>
-    <dialog class="dialog confirm-dialog" aria-label="Confirm deletion">
+    <dialog class="dialog confirm-dialog" data-copy="dialogs.confirmDeleteAria" data-copy-attr="aria-label">
       <header class="dialog__header">
-        <span class="dialog__title">Delete step?</span>
+        <span class="dialog__title" data-copy="dialogs.confirmDeleteTitle"></span>
         <form method="dialog">
-          <button class="dialog__close" aria-label="Dismiss">
+          <button class="dialog__close" data-copy="dialogs.dismiss" data-copy-attr="aria-label">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
@@ -20,35 +20,35 @@
       </header>
       <p class="confirm-dialog__detail"></p>
       <div class="confirm-dialog__actions">
-        <button class="confirm-dialog__cancel" type="button">Keep it</button>
-        <button class="confirm-dialog__confirm" type="button">Delete</button>
+        <button class="confirm-dialog__cancel" type="button" data-copy="dialogs.confirmKeep"></button>
+        <button class="confirm-dialog__confirm" type="button" data-copy="dialogs.confirmDelete"></button>
       </div>
     </dialog>
 
-    <dialog class="dialog auth-dialog" aria-label="Account">
+    <dialog class="dialog auth-dialog" data-copy="auth.accountAria" data-copy-attr="aria-label">
       <div class="auth-dialog__auth-view">
         <header class="dialog__header">
-          <span class="dialog__title" aria-hidden="true">Today</span>
+          <span class="dialog__title" aria-hidden="true" data-copy="auth.authDialogTitle"></span>
           <form method="dialog">
-            <button class="dialog__close" aria-label="Dismiss">
+            <button class="dialog__close" data-copy="auth.dismiss" data-copy-attr="aria-label">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
             </button>
           </form>
         </header>
-        <p class="auth-dialog__lead">Keep your steps with you, across every device.</p>
+        <p class="auth-dialog__lead" data-copy="auth.lead"></p>
         <div class="auth-dialog__tabs" role="tablist">
-          <button class="auth-dialog__tab is-active" role="tab" data-mode="signup" aria-selected="true">Create account</button>
-          <button class="auth-dialog__tab" role="tab" data-mode="signin" aria-selected="false">Sign in</button>
+          <button class="auth-dialog__tab is-active" role="tab" data-mode="signup" aria-selected="true" data-copy="auth.tabSignUp"></button>
+          <button class="auth-dialog__tab" role="tab" data-mode="signin" aria-selected="false" data-copy="auth.tabSignIn"></button>
         </div>
         <form class="auth-dialog__form" novalidate>
           <div class="auth-dialog__field">
-            <label class="auth-dialog__label" for="auth-email">Email</label>
+            <label class="auth-dialog__label" for="auth-email" data-copy="auth.labelEmail"></label>
             <input class="auth-dialog__input" id="auth-email" type="email" name="email" autocomplete="email" required />
           </div>
           <div class="auth-dialog__field auth-dialog__field--password">
-            <label class="auth-dialog__label" for="auth-password">Password</label>
+            <label class="auth-dialog__label" for="auth-password" data-copy="auth.labelPassword"></label>
             <div class="auth-dialog__password-wrapper">
               <input
                 class="auth-dialog__input"
@@ -61,7 +61,8 @@
               <button
                 class="auth-dialog__password-toggle"
                 type="button"
-                aria-label="Show password"
+                data-copy="auth.showPassword"
+                data-copy-attr="aria-label"
                 aria-pressed="false"
               >
                 <span
@@ -117,16 +118,16 @@
           </div>
           <p class="auth-dialog__error" role="alert" hidden></p>
           <button class="auth-dialog__submit" type="submit">
-            <span class="auth-dialog__submit-label">Create account</span>
+            <span class="auth-dialog__submit-label" data-copy="auth.submitSignUp"></span>
             <span class="auth-dialog__submit-arrow" aria-hidden="true">→</span>
           </button>
         </form>
       </div>
       <div class="auth-dialog__user-view" hidden>
         <header class="dialog__header">
-          <span class="dialog__title" aria-hidden="true">Account</span>
+          <span class="dialog__title" aria-hidden="true" data-copy="auth.accountTitle"></span>
           <form method="dialog">
-            <button class="dialog__close" aria-label="Dismiss">
+            <button class="dialog__close" data-copy="auth.dismiss" data-copy-attr="aria-label">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
@@ -135,7 +136,7 @@
         </header>
         <p class="auth-dialog__user-email"></p>
         <button class="auth-dialog__sign-out" type="button">
-          <span>Sign out</span>
+          <span data-copy="auth.signOut"></span>
           <span aria-hidden="true">→</span>
         </button>
       </div>
@@ -144,41 +145,42 @@
     <div id="app" class="todo-app">
       <header class="todo-app__header">
         <p class="todo-app__eyebrow" aria-hidden="true"></p>
-        <nav class="todo-app__title-nav" aria-label="View">
-          <button class="todo-app__title-link is-active" type="button" data-view="today" aria-pressed="true">Today</button>
-          <button class="todo-app__title-link" type="button" data-view="week" aria-pressed="false">Week</button>
+        <nav class="todo-app__title-nav" data-copy="today.viewNavAria" data-copy-attr="aria-label">
+          <button class="todo-app__title-link is-active" type="button" data-view="today" aria-pressed="true" data-copy="today.todayTab"></button>
+          <button class="todo-app__title-link" type="button" data-view="week" aria-pressed="false" data-copy="today.weekTab"></button>
         </nav>
         <p class="todo-app__progress" aria-live="polite"></p>
-        <button class="todo-app__account-button" type="button" aria-label="Account" aria-haspopup="dialog">
+        <button class="todo-app__account-button" type="button" data-copy="auth.accountAria" data-copy-attr="aria-label" aria-haspopup="dialog">
           <i data-lucide="user"></i>
         </button>
       </header>
 
-      <form class="todo-app__form" aria-label="Add a new step">
-        <label class="todo-app__label" for="todo-input">New step</label>
+      <form class="todo-app__form" data-copy="today.formAria" data-copy-attr="aria-label">
+        <label class="todo-app__label" for="todo-input" data-copy="today.formLabel"></label>
         <div class="todo-app__input-wrapper">
           <input
             id="todo-input"
             class="todo-app__input"
             type="text"
             name="todo"
-            placeholder="What's your next step?"
+            data-copy="today.placeholder"
+            data-copy-attr="placeholder"
             autocomplete="off"
           />
           <div class="todo-app__form-toolbar">
-            <button type="button" class="journey-context" aria-label="Current journey">
-              <span class="journey-context__name">Journey</span>
+            <button type="button" class="journey-context" data-copy="today.currentJourneyAria" data-copy-attr="aria-label">
+              <span class="journey-context__name" data-copy="today.journeyDefault"></span>
             </button>
-            <button class="todo-app__add-button" type="submit" aria-label="Add step">
+            <button class="todo-app__add-button" type="submit" data-copy="today.addStepAria" data-copy-attr="aria-label">
               <i data-lucide="plus"></i>
             </button>
           </div>
         </div>
       </form>
 
-      <section class="todo-app__items" aria-live="polite" aria-label="Today's steps"></section>
+      <section class="todo-app__items" aria-live="polite" data-copy="today.itemsAria" data-copy-attr="aria-label"></section>
 
-      <section class="week-view" aria-label="This week's activity" hidden></section>
+      <section class="week-view" data-copy="today.weekSectionAria" data-copy-attr="aria-label" hidden></section>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

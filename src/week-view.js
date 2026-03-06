@@ -2,6 +2,8 @@
 // Renders per-path activity visualization and 8-week sparkline.
 // Pure DOM SVG — no external library.
 
+import copy, { t } from './copy/index.js'
+
 const SVG_NS = 'http://www.w3.org/2000/svg'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -190,7 +192,7 @@ export function renderWeekView(container, { paths, steps, stepPathsMap, mileston
   if (activePaths.length === 0) {
     const empty = document.createElement('p')
     empty.className = 'week-view__empty'
-    empty.textContent = 'Assign steps to paths to see activity here.'
+    empty.textContent = copy.week.emptyState
     container.append(empty)
     return
   }
@@ -230,7 +232,7 @@ export function renderWeekView(container, { paths, steps, stepPathsMap, mileston
 
     const countEl = document.createElement('span')
     countEl.className = 'week-view__path-count'
-    countEl.textContent = `${pathSteps.length} steps`
+    countEl.textContent = t(copy.week.pathStepCountTemplate, { count: String(pathSteps.length) })
 
     header.append(dot, nameEl, countEl)
 

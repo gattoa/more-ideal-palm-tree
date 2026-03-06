@@ -1,0 +1,4 @@
+{
+  "emptyState": "Assign steps to paths to see activity here.",
+  "pathStepCountTemplate": "{{count}} steps"
+}

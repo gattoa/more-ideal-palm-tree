@@ -14,6 +14,7 @@ import { loadPaths, createPath, addStepToPath, removeStepFromPath, loadStepPaths
 import { loadMilestones, createMilestone } from './milestones.js'
 import { renderWeekView } from './week-view.js'
 import { setView } from './views.js'
+import copy, { t } from './copy/index.js'
 
 // ─── DOM ────────────────────────────────────────────────────────────────────
 
@@ -52,6 +53,25 @@ const authDialogSignOut = document.querySelector('.auth-dialog__sign-out')
 
 if (!form || !input || !itemsContainer) {
   throw new Error('Todo app markup is missing required elements.')
+}
+
+/** Resolve a dot-path (e.g. "dialogs.confirmDeleteTitle") into a value from the copy object. */
+function getCopyValue(obj, path) {
+  return path.split('.').reduce((o, k) => o?.[k], obj)
+}
+
+/** Apply copy from JSON to all elements with data-copy. Runs once after DOM is ready. */
+function applyCopyToDom() {
+  document.querySelectorAll('[data-copy]').forEach((el) => {
+    const key = el.getAttribute('data-copy')
+    const attr = el.getAttribute('data-copy-attr')
+    const value = getCopyValue(copy, key)
+    if (value == null || value === '') return
+    if (attr === 'placeholder') el.placeholder = value
+    else if (attr === 'aria-label') el.setAttribute('aria-label', value)
+    else el.textContent = value
+  })
+  document.title = copy.today.pageTitle
 }
 
 // Set date in eyebrow
@@ -97,8 +117,8 @@ function updateProgress() {
     return
   }
 
-  const noun = total === 1 ? 'step' : 'steps'
-  progressEl.textContent = `${total} ${noun} today`
+  const noun = total === 1 ? copy.today.stepSingular : copy.today.stepPlural
+  progressEl.textContent = t(copy.today.progressTemplate, { count: String(total), noun })
 }
 
 // ─── Sticky Journey Context ─────────────────────────────────────────────────
@@ -113,7 +133,7 @@ function updateJourneyContext() {
     journeyContextBtn.dataset.journeySlug = journey?.slug ?? ''
   }
   if (journeyContextName) {
-    journeyContextName.textContent = journey?.name ?? 'Journey'
+    journeyContextName.textContent = journey?.name ?? copy.today.journeyDefault
   }
 }
 
@@ -156,7 +176,7 @@ function buildStepDetailView(step) {
 
   const journeyLabel = document.createElement('span')
   journeyLabel.className = 'step-detail__label'
-  journeyLabel.textContent = 'Journey'
+  journeyLabel.textContent = copy.steps.journey
 
   const journeyList = document.createElement('div')
   journeyList.className = 'step-detail__journey-list'
@@ -180,7 +200,7 @@ function buildStepDetailView(step) {
 
   const pathLabel = document.createElement('span')
   pathLabel.className = 'step-detail__label'
-  pathLabel.textContent = 'Paths'
+  pathLabel.textContent = copy.steps.paths
 
   const pathChips = document.createElement('div')
   pathChips.className = 'step-detail__path-chips'
@@ -193,8 +213,8 @@ function buildStepDetailView(step) {
   const addPathInput = document.createElement('input')
   addPathInput.className = 'step-detail__add-path'
   addPathInput.type = 'text'
-  addPathInput.placeholder = '+ path'
-  addPathInput.setAttribute('aria-label', 'Add path')
+  addPathInput.placeholder = copy.steps.addPathPlaceholder
+  addPathInput.setAttribute('aria-label', copy.steps.addPathAria)
 
   pathChips.append(addPathInput)
   pathSection.append(pathLabel, pathChips)
@@ -205,7 +225,7 @@ function buildStepDetailView(step) {
 
   const msLabel = document.createElement('span')
   msLabel.className = 'step-detail__label'
-  msLabel.textContent = 'Milestone'
+  msLabel.textContent = copy.steps.milestone
 
   const msSelect = document.createElement('select')
   msSelect.className = 'step-detail__milestone-select'
@@ -213,7 +233,7 @@ function buildStepDetailView(step) {
 
   const noneOpt = document.createElement('option')
   noneOpt.value = ''
-  noneOpt.textContent = 'None'
+  noneOpt.textContent = copy.steps.milestoneNone
   msSelect.append(noneOpt)
 
   const journeyMilestones = milestones.filter((m) => m.journey_id === step.journey_id)
@@ -229,8 +249,8 @@ function buildStepDetailView(step) {
   const msCreateInput = document.createElement('input')
   msCreateInput.className = 'step-detail__add-milestone'
   msCreateInput.type = 'text'
-  msCreateInput.placeholder = '+ milestone'
-  msCreateInput.setAttribute('aria-label', 'Create milestone')
+  msCreateInput.placeholder = copy.steps.addMilestonePlaceholder
+  msCreateInput.setAttribute('aria-label', copy.steps.addMilestoneAria)
   msCreateInput.dataset.stepId = step.id
 
   msSection.append(msLabel, msSelect, msCreateInput)
@@ -251,7 +271,7 @@ function buildPathChip(stepId, path) {
   const removeBtn = document.createElement('button')
   removeBtn.type = 'button'
   removeBtn.className = 'step-detail__path-remove'
-  removeBtn.setAttribute('aria-label', `Remove ${path.name}`)
+  removeBtn.setAttribute('aria-label', t(copy.steps.removePathAria, { pathName: path.name }))
   removeBtn.textContent = '\u00d7'
 
   chip.append(name, removeBtn)
@@ -278,7 +298,7 @@ function buildStepElement(step, journey, isNew) {
   indicator.className = 'todo-item__indicator'
   indicator.setAttribute('role', 'switch')
   indicator.setAttribute('aria-checked', String(!!step.completed))
-  indicator.setAttribute('aria-label', 'Mark complete')
+  indicator.setAttribute('aria-label', copy.steps.markComplete)
   const checkIcon = document.createElement('i')
   checkIcon.dataset.lucide = 'check'
   indicator.append(checkIcon)
@@ -319,7 +339,7 @@ function buildStepElement(step, journey, isNew) {
     const expandBtn = document.createElement('button')
     expandBtn.type = 'button'
     expandBtn.className = 'todo-item__expand'
-    expandBtn.setAttribute('aria-label', 'Step details')
+    expandBtn.setAttribute('aria-label', copy.steps.stepDetails)
     expandBtn.textContent = '···'
     actions.append(expandBtn)
   }
@@ -328,7 +348,7 @@ function buildStepElement(step, journey, isNew) {
   deleteButton.className = 'todo-item__delete-button'
   deleteButton.type = 'button'
   deleteButton.dataset.todoId = step.id
-  deleteButton.setAttribute('aria-label', `Delete "${step.text}"`)
+  deleteButton.setAttribute('aria-label', t(copy.steps.deleteStepAria, { stepText: step.text }))
 
   const icon = document.createElement('i')
   icon.dataset.lucide = 'x'
@@ -383,7 +403,7 @@ function renderSteps() {
   if (steps.length === 0) {
     const empty = document.createElement('p')
     empty.className = 'todo-empty'
-    empty.textContent = 'Every journey starts with a single step.'
+    empty.textContent = copy.today.emptyState
     itemsContainer.append(empty)
     updateProgress()
     return
@@ -546,7 +566,7 @@ function confirmDelete(step, itemEl, deleteButton) {
     return
   }
 
-  const stepText = step?.text || 'this step'
+  const stepText = step?.text || copy.steps.thisStep
   confirmDialogDetail.textContent = stepText
 
   confirmDialog.showModal()
@@ -593,7 +613,7 @@ async function deleteStep(id, itemEl, deleteButton) {
     if (steps.length === 0) {
       const empty = document.createElement('p')
       empty.className = 'todo-empty'
-      empty.textContent = 'Every journey starts with a single step.'
+      empty.textContent = copy.today.emptyState
       itemsContainer.append(empty)
     }
 
@@ -689,7 +709,7 @@ function enterEditMode(tile, stepId) {
   input.type = 'text'
   input.className = 'todo-item__edit-input'
   input.value = step.text
-  input.setAttribute('aria-label', 'Edit step text')
+  input.setAttribute('aria-label', copy.steps.editStepAria)
 
   const contentEl = tile.querySelector('.todo-item__content')
   contentEl.insertBefore(input, textEl)
@@ -707,7 +727,7 @@ function enterEditMode(tile, stepId) {
       if (ok) {
         textEl.textContent = newText
         const delBtn = tile.querySelector('.todo-item__delete-button')
-        if (delBtn) delBtn.setAttribute('aria-label', `Delete "${newText}"`)
+        if (delBtn) delBtn.setAttribute('aria-label', t(copy.steps.deleteStepAria, { stepText: newText }))
       }
     }
     exitEditMode(tile)
@@ -750,7 +770,7 @@ function setAuthMode(mode) {
     tab.classList.toggle('is-active', isActive)
     tab.setAttribute('aria-selected', String(isActive))
   })
-  if (authSubmitLabel) authSubmitLabel.textContent = mode === 'signup' ? 'Create account' : 'Sign in'
+  if (authSubmitLabel) authSubmitLabel.textContent = mode === 'signup' ? copy.auth.submitSignUp : copy.auth.submitSignIn
   if (authPasswordInput) {
     authPasswordInput.setAttribute(
       'autocomplete',
@@ -826,7 +846,7 @@ authPasswordToggle?.addEventListener('click', () => {
   authPasswordInput.type = isHidden ? 'text' : 'password'
   authPasswordToggle.classList.toggle('is-visible', isHidden)
   authPasswordToggle.setAttribute('aria-pressed', String(isHidden))
-  authPasswordToggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password')
+  authPasswordToggle.setAttribute('aria-label', isHidden ? copy.auth.hidePassword : copy.auth.showPassword)
 })
 
 authForm?.addEventListener('submit', async (event) => {
@@ -835,7 +855,7 @@ authForm?.addEventListener('submit', async (event) => {
   const password = authPasswordInput?.value ?? ''
 
   if (!email || !password) {
-    showAuthError('Please enter your email and password.')
+    showAuthError(copy.auth.errorEmailPassword)
     return
   }
 
@@ -854,7 +874,7 @@ authForm?.addEventListener('submit', async (event) => {
       return
     }
     if (signUpData?.user?.email && !signUpData?.user?.email_confirmed_at) {
-      showAuthError('Check your email to confirm your account.')
+      showAuthError(copy.auth.errorCheckEmail)
       authSubmitButton.disabled = false
       return
     }
@@ -1109,6 +1129,8 @@ onAuthStateChange((_event, session) => {
 })
 
 async function init() {
+  applyCopyToDom()
+
   const { data } = await getSession()
   if (!data.session) {
     const { error } = await signInAnonymously()
