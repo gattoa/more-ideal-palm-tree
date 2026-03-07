@@ -439,6 +439,54 @@ button:focus-visible {
   background-color: var(--color-primary);
 }
 
+/* ─── Sort chips ─────────────────────────────────────────────────────────── */
+
+.todo-app__sort-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding: var(--space-sm) 0 var(--space-xs);
+}
+
+.todo-app__sort-chip {
+  padding: calc(var(--space-xs) * 1.25) var(--space-md);
+  border-radius: var(--radius-xl);
+  border: var(--border-width-sm) solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.todo-app__sort-chip:hover {
+  background: var(--color-surface-subtle);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.todo-app__sort-chip.is-active,
+.todo-app__sort-chip.is-active:hover {
+  background: var(--color-surface-subtle);
+  border-color: var(--neutral-300);
+  color: var(--color-text);
+  cursor: default;
+}
+
+.todo-app__sort-chip:focus-visible {
+  outline: var(--focus-outline-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* ─── Step list ──────────────────────────────────────────────────────────── */
+
 .todo-app__items {
   min-height: 0;
   border: 0;

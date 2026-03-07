@@ -30,6 +30,9 @@ const journeyContextName = document.querySelector('.journey-context__name')
 const weekViewContainer = document.querySelector('.week-view')
 const viewNavTabs = document.querySelectorAll('.todo-app__title-link')
 
+const sortBar = document.querySelector('.todo-app__sort-bar')
+const sortChips = document.querySelectorAll('.todo-app__sort-chip')
+
 const authDialog = document.querySelector('.auth-dialog')
 const authAuthView = document.querySelector('.auth-dialog__auth-view')
 const authUserView = document.querySelector('.auth-dialog__user-view')
@@ -96,6 +99,7 @@ let isAnonymousUser = true
 const renderedIds = new Set()
 let authMode = 'signup' // 'signup' | 'signin'
 let savedScrollTop = 0
+let sortMode = localStorage.getItem('sortMode') || 'time-asc'
 
 // ─── Icons ──────────────────────────────────────────────────────────────────
 
@@ -183,6 +187,46 @@ function isVisibleToday(step) {
     completedDate.getDate() === now.getDate()
   )
 }
+
+// ─── Sort ────────────────────────────────────────────────────────────────────
+
+function getSortedSteps() {
+  const sorted = [...steps]
+  switch (sortMode) {
+    case 'time-desc':
+      return sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    case 'journey':
+      return sorted.sort((a, b) => {
+        const aOrder = a.journeys?.sort_order ?? 999
+        const bOrder = b.journeys?.sort_order ?? 999
+        if (aOrder !== bOrder) return aOrder - bOrder
+        return new Date(a.created_at) - new Date(b.created_at)
+      })
+    case 'status':
+      return sorted.sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1
+        return new Date(a.created_at) - new Date(b.created_at)
+      })
+    default: // 'time-asc'
+      return sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+  }
+}
+
+function updateSortChips() {
+  sortChips.forEach((chip) => {
+    const isActive = chip.dataset.sort === sortMode
+    chip.classList.toggle('is-active', isActive)
+  })
+}
+
+sortChips.forEach((chip) => {
+  chip.addEventListener('click', () => {
+    sortMode = chip.dataset.sort
+    localStorage.setItem('sortMode', sortMode)
+    updateSortChips()
+    renderSteps()
+  })
+})
 
 // ─── Step Detail View ────────────────────────────────────────────────────────
 
@@ -422,6 +466,9 @@ function rebuildStepMeta(stepId) {
 function renderSteps() {
   itemsContainer.replaceChildren()
 
+  // Show chips only when there are steps to sort
+  if (sortBar) sortBar.hidden = steps.length === 0
+
   if (steps.length === 0) {
     const empty = document.createElement('p')
     empty.className = 'todo-empty'
@@ -431,7 +478,7 @@ function renderSteps() {
     return
   }
 
-  for (const step of steps) {
+  for (const step of getSortedSteps()) {
     const isNew = !renderedIds.has(step.id)
     itemsContainer.append(buildStepElement(step, step.journeys, isNew))
   }
@@ -470,11 +517,13 @@ document.addEventListener('viewchange', (event) => {
     if (weekViewContainer) weekViewContainer.hidden = true
     itemsContainer.hidden = false
     form.hidden = false
+    if (sortBar) sortBar.hidden = steps.length === 0
     window.scrollTo(0, savedScrollTop)
   } else if (view === 'week') {
     savedScrollTop = window.scrollY
     itemsContainer.hidden = true
     form.hidden = true
+    if (sortBar) sortBar.hidden = true
     if (weekViewContainer) {
       weekViewContainer.hidden = false
       refreshWeekView()
@@ -547,18 +596,7 @@ async function addStep(text, journeyId) {
   }
 
   steps.push(data)
-
-  // Remove empty-state message if present
-  const emptyEl = itemsContainer.querySelector('.todo-empty')
-  if (emptyEl) emptyEl.remove()
-
-  // Append step to the end (chronological)
-  const stepEl = buildStepElement(data, data.journeys, true)
-  itemsContainer.append(stepEl)
-
-  hydrateIcons()
-  updateProgress()
-  refreshWeekView()
+  renderSteps()
 }
 
 async function toggleStep(id, completed) {
@@ -1167,6 +1205,7 @@ function scheduleMidnightArchive() {
 // ─── Init ───────────────────────────────────────────────────────────────────
 
 hydrateIcons()
+updateSortChips()
 
 onAuthStateChange((_event, session) => {
   currentUserId = session?.user?.id ?? null

@@ -14,5 +14,10 @@
   "weekTab": "Week",
   "itemsAria": "Today's steps",
   "weekSectionAria": "This week's activity",
-  "currentJourneyAria": "Current journey"
+  "currentJourneyAria": "Current journey",
+  "sortBarAria": "Sort steps",
+  "sortOldest": "Oldest",
+  "sortNewest": "Newest",
+  "sortJourney": "Journey",
+  "sortActive": "Active"
 }
