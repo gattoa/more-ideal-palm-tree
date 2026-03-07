@@ -162,6 +162,28 @@ function formatStepTime(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
+// ─── Visibility Filter ──────────────────────────────────────────────────────
+
+/**
+ * A step belongs in the Today view if:
+ *   - it is incomplete (show indefinitely until the user completes it), OR
+ *   - it was completed today in local time (stays until midnight, then archives).
+ *
+ * Legacy rows completed before this column existed have completed_at = null;
+ * the backfill migration sets them to created_at, so this guard is a safety net.
+ */
+function isVisibleToday(step) {
+  if (!step.completed) return true
+  if (!step.completed_at) return true // safety net for any un-backfilled rows
+  const completedDate = new Date(step.completed_at)
+  const now = new Date()
+  return (
+    completedDate.getFullYear() === now.getFullYear() &&
+    completedDate.getMonth() === now.getMonth() &&
+    completedDate.getDate() === now.getDate()
+  )
+}
+
 // ─── Step Detail View ────────────────────────────────────────────────────────
 
 function buildStepDetailView(step) {
@@ -496,7 +518,9 @@ async function loadSteps() {
     return
   }
 
-  steps = data
+  // Only surface steps that belong in Today: incomplete ones (always),
+  // and completed ones that were finished today in local time.
+  steps = data.filter(isVisibleToday)
   stepPathsMap = await loadStepPathsMap()
   for (const step of steps) {
     renderedIds.add(step.id)
@@ -538,13 +562,17 @@ async function addStep(text, journeyId) {
 }
 
 async function toggleStep(id, completed) {
+  // Record the exact moment of completion; clear it when uncompleting.
+  const completedAt = completed ? new Date().toISOString() : null
+
   const { error } = await supabase
     .from('steps')
-    .update({ completed })
+    .update({ completed, completed_at: completedAt })
     .eq('id', id)
 
   if (error) {
     console.error('Failed to update step:', error.message)
+    // Roll back the optimistic UI update applied in the click handler.
     const step = steps.find((s) => s.id === id)
     if (step) step.completed = !completed
     const itemEl = itemsContainer.querySelector(`.todo-item[data-step-id="${id}"]`)
@@ -556,8 +584,9 @@ async function toggleStep(id, completed) {
     return
   }
 
+  // Persist completed_at in memory so isVisibleToday() stays accurate.
   const step = steps.find((s) => s.id === id)
-  if (step) step.completed = completed
+  if (step) step.completed_at = completedAt
 }
 
 function confirmDelete(step, itemEl, deleteButton) {
@@ -1111,6 +1140,30 @@ document.addEventListener('keydown', (event) => {
   })
 })
 
+// ─── Midnight Archive ───────────────────────────────────────────────────────
+
+/**
+ * At the stroke of midnight (local time), remove any completed steps whose
+ * completed_at is now yesterday and re-render the Today view.  Reschedules
+ * itself so it stays accurate across sessions that span multiple days.
+ */
+function scheduleMidnightArchive() {
+  const now = new Date()
+  const midnight = new Date(now)
+  midnight.setHours(24, 0, 0, 0) // next local midnight
+  const msUntilMidnight = midnight - now
+
+  setTimeout(() => {
+    const before = steps.length
+    steps = steps.filter(isVisibleToday)
+    if (steps.length !== before) {
+      renderSteps()
+      refreshWeekView()
+    }
+    scheduleMidnightArchive() // reschedule for the following midnight
+  }, msUntilMidnight)
+}
+
 // ─── Init ───────────────────────────────────────────────────────────────────
 
 hydrateIcons()
@@ -1130,6 +1183,7 @@ onAuthStateChange((_event, session) => {
 
 async function init() {
   applyCopyToDom()
+  scheduleMidnightArchive()
 
   const { data } = await getSession()
   if (!data.session) {
