@@ -1,6 +1,6 @@
 import auth from './auth.json'
 import today from './today.json'
-import week from './week.json'
+import trail from './trail.json'
 import dialogs from './dialogs.json'
 import steps from './steps.json'
 
@@ -15,4 +15,4 @@ export function t(str, vars = {}) {
   return str.replace(/\{\{(\w+)\}\}/g, (_, key) => (vars[key] ?? ''))
 }
 
-export default { auth, today, week, dialogs, steps }
+export default { auth, today, trail, dialogs, steps }

@@ -1,0 +1,10 @@
+{
+  "emptyState": "Assign steps to paths to see your trails take shape.",
+  "pathCountTemplate": "{{completed}} of {{total}} {{noun}}",
+  "progressTemplate": "{{count}} {{noun}} across {{paths}} {{pathNoun}}",
+  "stepSingular": "step",
+  "stepPlural": "steps",
+  "pathSingular": "trail",
+  "pathPlural": "trails",
+  "frequencyLabel": "8 weeks"
+}

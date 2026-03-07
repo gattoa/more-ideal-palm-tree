@@ -12,8 +12,8 @@ import {
 } from './auth.js'
 import { loadPaths, createPath, addStepToPath, removeStepFromPath, loadStepPathsMap } from './paths.js'
 import { loadMilestones, createMilestone } from './milestones.js'
-import { renderWeekView } from './week-view.js'
-import { setView } from './views.js'
+import { renderTrailView } from './trail-view.js'
+import { getView, setView } from './views.js'
 import copy, { t } from './copy/index.js'
 
 // ─── DOM ────────────────────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ const progressEl = document.querySelector('.todo-app__progress')
 const journeyContextBtn = document.querySelector('.journey-context')
 const journeyContextName = document.querySelector('.journey-context__name')
 
-const weekViewContainer = document.querySelector('.week-view')
+const trailViewContainer = document.querySelector('.trail-view')
 const viewNavTabs = document.querySelectorAll('.todo-app__title-link')
 
 const sortBar = document.querySelector('.todo-app__sort-bar')
@@ -77,14 +77,29 @@ function applyCopyToDom() {
   document.title = copy.today.pageTitle
 }
 
-// Set date in eyebrow
-if (eyebrow) {
-  eyebrow.textContent = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  })
+// ─── Eyebrow ────────────────────────────────────────────────────────────────
+
+function updateEyebrow(view) {
+  if (!eyebrow) return
+
+  if (view === 'trails') {
+    const now = new Date()
+    const eightWeeksAgo = new Date(now)
+    eightWeeksAgo.setDate(eightWeeksAgo.getDate() - 55) // ~8 weeks back
+    const fmt = { month: 'short', day: 'numeric' }
+    const start = eightWeeksAgo.toLocaleDateString('en-US', fmt)
+    const end = now.toLocaleDateString('en-US', fmt)
+    eyebrow.textContent = `${start} – ${end}`
+  } else {
+    eyebrow.textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
 }
+
+updateEyebrow('today')
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
@@ -115,7 +130,47 @@ function hydrateIcons() {
 function updateProgress() {
   if (!progressEl) return
 
-  // Count steps completed today — each completion is a step forward.
+  const view = getView()
+
+  if (view === 'trails') {
+    // Count completed steps across all paths in the 8-week window
+    const now = new Date()
+    const windowStart = new Date(now)
+    windowStart.setDate(windowStart.getDate() - 55)
+
+    let completedCount = 0
+    const activePathIds = new Set()
+
+    for (const step of steps) {
+      if (!step.completed) continue
+      const created = new Date(step.created_at)
+      if (created < windowStart) continue
+      completedCount++
+      const stepPaths = stepPathsMap.get(step.id)
+      if (stepPaths) {
+        for (const sp of stepPaths) activePathIds.add(sp.id)
+      }
+    }
+
+    if (completedCount === 0) {
+      progressEl.textContent = ''
+      return
+    }
+
+    const pathCount = activePathIds.size
+    const noun = completedCount === 1 ? copy.trail.stepSingular : copy.trail.stepPlural
+    const pathNoun = pathCount === 1 ? copy.trail.pathSingular : copy.trail.pathPlural
+
+    progressEl.textContent = t(copy.trail.progressTemplate, {
+      count: String(completedCount),
+      noun,
+      paths: String(pathCount),
+      pathNoun,
+    })
+    return
+  }
+
+  // Today: count steps completed today
   const now = new Date()
   const total = steps.filter((s) => {
     if (!s.completed || !s.completed_at) return false
@@ -496,14 +551,14 @@ function renderSteps() {
 
   hydrateIcons()
   updateProgress()
-  refreshWeekView()
+  refreshTrailView()
 }
 
-// ─── Week View ──────────────────────────────────────────────────────────────
+// ─── Trail View ─────────────────────────────────────────────────────────────
 
-function refreshWeekView() {
-  if (!weekViewContainer || weekViewContainer.hidden) return
-  renderWeekView(weekViewContainer, { paths, steps, stepPathsMap, milestones, journeys })
+function refreshTrailView() {
+  if (!trailViewContainer || trailViewContainer.hidden) return
+  renderTrailView(trailViewContainer, { paths, steps, stepPathsMap, milestones, journeys })
 }
 
 // ─── View Navigation ────────────────────────────────────────────────────────
@@ -524,21 +579,26 @@ document.addEventListener('viewchange', (event) => {
     tab.setAttribute('aria-pressed', String(isActive))
   })
 
+  updateEyebrow(view)
+
   if (view === 'today') {
-    if (weekViewContainer) weekViewContainer.hidden = true
+    if (trailViewContainer) trailViewContainer.hidden = true
     itemsContainer.hidden = false
     form.hidden = false
     if (sortBar) sortBar.hidden = steps.length === 0
+    updateProgress()
     window.scrollTo(0, savedScrollTop)
-  } else if (view === 'week') {
+  } else if (view === 'trails') {
     savedScrollTop = window.scrollY
+    // Hide all Today hemisphere elements
     itemsContainer.hidden = true
     form.hidden = true
     if (sortBar) sortBar.hidden = true
-    if (weekViewContainer) {
-      weekViewContainer.hidden = false
-      refreshWeekView()
+    if (trailViewContainer) {
+      trailViewContainer.hidden = false
+      refreshTrailView()
     }
+    updateProgress()
   }
 })
 
@@ -698,7 +758,7 @@ async function deleteStep(id, itemEl, deleteButton) {
     }
 
     updateProgress()
-    refreshWeekView()
+    refreshTrailView()
   }
 
   if (itemEl) {
@@ -736,7 +796,7 @@ async function updateStepJourney(id, journeyId) {
     })
   }
 
-  refreshWeekView()
+  refreshTrailView()
 }
 
 async function updateStepMilestone(stepId, milestoneId) {
@@ -1209,7 +1269,7 @@ function scheduleMidnightArchive() {
     steps = steps.filter(isVisibleToday)
     if (steps.length !== before) {
       renderSteps()
-      refreshWeekView()
+      refreshTrailView()
     }
     scheduleMidnightArchive() // reschedule for the following midnight
   }, msUntilMidnight)

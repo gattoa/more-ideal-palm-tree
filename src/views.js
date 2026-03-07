@@ -1,5 +1,5 @@
 // ─── View State ─────────────────────────────────────────────────────────────
-// Simple state machine: 'today' | 'week'
+// Simple state machine: 'today' | 'trails'
 
 let currentView = 'today'
 
