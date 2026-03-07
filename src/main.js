@@ -266,11 +266,15 @@ function getSortedSteps() {
         const aOrder = a.journeys?.sort_order ?? 999
         const bOrder = b.journeys?.sort_order ?? 999
         if (aOrder !== bOrder) return aOrder - bOrder
+        if (a.completed !== b.completed) return a.completed ? 1 : -1
         return new Date(a.created_at) - new Date(b.created_at)
       })
     case 'status':
       return sorted.sort((a, b) => {
         if (a.completed !== b.completed) return a.completed ? 1 : -1
+        const aOrder = a.journeys?.sort_order ?? 999
+        const bOrder = b.journeys?.sort_order ?? 999
+        if (aOrder !== bOrder) return aOrder - bOrder
         return new Date(a.created_at) - new Date(b.created_at)
       })
     default: // 'time-asc'
@@ -630,7 +634,7 @@ async function loadAllMilestones() {
 async function loadSteps() {
   const { data, error } = await supabase
     .from('steps')
-    .select('*, journeys(id, name, slug), milestones(id, name, target_count)')
+    .select('*, journeys(id, name, slug, sort_order), milestones(id, name, target_count)')
     .order('created_at', { ascending: true })
 
   if (error) {
@@ -658,7 +662,7 @@ async function addStep(text, journeyId) {
   const { data, error } = await supabase
     .from('steps')
     .insert(insertPayload)
-    .select('*, journeys(id, name, slug), milestones(id, name, target_count)')
+    .select('*, journeys(id, name, slug, sort_order), milestones(id, name, target_count)')
     .single()
 
   if (error) {
@@ -774,7 +778,7 @@ async function updateStepJourney(id, journeyId) {
     .from('steps')
     .update({ journey_id: journeyId })
     .eq('id', id)
-    .select('*, journeys(id, name, slug)')
+    .select('*, journeys(id, name, slug, sort_order)')
     .single()
 
   if (error) {
