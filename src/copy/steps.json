@@ -1,8 +1,10 @@
 {
   "journey": "Journey",
   "paths": "Paths",
-  "addPathPlaceholder": "+ path",
-  "addPathAria": "Add path",
+  "addPathPlaceholder": "Search or create path…",
+  "addPathAria": "Search or create path",
+  "pathCreateOption": "+ Create '{{name}}'",
+  "noPathsMatch": "No paths found",
   "milestone": "Milestone",
   "milestoneNone": "None",
   "addMilestonePlaceholder": "+ milestone",

@@ -338,6 +338,8 @@ function buildStepDetailView(step) {
   pathLabel.className = 'step-detail__label'
   pathLabel.textContent = copy.steps.paths
 
+  const pathPicker = buildPathPicker(step.id)
+
   const pathChips = document.createElement('div')
   pathChips.className = 'step-detail__path-chips'
 
@@ -346,14 +348,7 @@ function buildStepDetailView(step) {
     pathChips.append(buildPathChip(step.id, p))
   }
 
-  const addPathInput = document.createElement('input')
-  addPathInput.className = 'step-detail__add-path'
-  addPathInput.type = 'text'
-  addPathInput.placeholder = copy.steps.addPathPlaceholder
-  addPathInput.setAttribute('aria-label', copy.steps.addPathAria)
-
-  pathChips.append(addPathInput)
-  pathSection.append(pathLabel, pathChips)
+  pathSection.append(pathLabel, pathPicker, pathChips)
 
   // ── Milestone section (epic linking) ──
   const msSection = document.createElement('div')
@@ -412,6 +407,168 @@ function buildPathChip(stepId, path) {
 
   chip.append(name, removeBtn)
   return chip
+}
+
+function buildPathPicker(stepId) {
+  const wrapper = document.createElement('div')
+  wrapper.className = 'step-detail__path-picker'
+
+  const input = document.createElement('input')
+  input.className = 'step-detail__path-input'
+  input.type = 'text'
+  input.placeholder = copy.steps.addPathPlaceholder
+  input.setAttribute('aria-label', copy.steps.addPathAria)
+  input.setAttribute('autocomplete', 'off')
+
+  const dropdown = document.createElement('ul')
+  dropdown.className = 'step-detail__path-dropdown'
+  dropdown.hidden = true
+
+  wrapper.append(input, dropdown)
+
+  let highlightIdx = -1
+
+  function getFilteredPaths(query) {
+    const assigned = (stepPathsMap.get(stepId) || []).map((p) => p.id)
+    return paths.filter(
+      (p) =>
+        !assigned.includes(p.id) &&
+        p.name.toLowerCase().includes(query.toLowerCase()),
+    )
+  }
+
+  function renderDropdown(query) {
+    dropdown.replaceChildren()
+    highlightIdx = -1
+
+    const filtered = getFilteredPaths(query)
+    const trimmed = query.trim()
+    const exactMatch = filtered.some((p) => p.name.toLowerCase() === trimmed.toLowerCase())
+
+    if (filtered.length === 0 && !trimmed) {
+      const li = document.createElement('li')
+      li.className = 'step-detail__path-option is-empty'
+      li.textContent = copy.steps.noPathsMatch
+      dropdown.append(li)
+      dropdown.hidden = false
+      return
+    }
+
+    for (const p of filtered) {
+      const li = document.createElement('li')
+      li.className = 'step-detail__path-option'
+      li.textContent = p.name
+      li.dataset.pathId = p.id
+      dropdown.append(li)
+    }
+
+    if (trimmed && !exactMatch) {
+      const li = document.createElement('li')
+      li.className = 'step-detail__path-option is-create'
+      li.textContent = t(copy.steps.pathCreateOption, { name: trimmed })
+      li.dataset.createName = trimmed
+      dropdown.append(li)
+    }
+
+    if (filtered.length === 0 && !trimmed) {
+      dropdown.hidden = true
+    } else {
+      dropdown.hidden = false
+    }
+  }
+
+  async function selectPath(pathId, createName) {
+    let path
+    if (createName) {
+      path = paths.find((p) => p.name.toLowerCase() === createName.toLowerCase())
+      if (!path) {
+        path = await createPath(createName, currentUserId)
+        if (path) paths.push(path)
+      }
+    } else {
+      path = paths.find((p) => p.id === pathId)
+    }
+    if (!path) return
+
+    const ok = await addStepToPath(stepId, path.id)
+    if (ok) {
+      const existing = stepPathsMap.get(stepId) || []
+      existing.push({ id: path.id, name: path.name })
+      stepPathsMap.set(stepId, existing)
+
+      const chip = buildPathChip(stepId, path)
+      const chipsContainer = wrapper.closest('.step-detail__section')?.querySelector('.step-detail__path-chips')
+      if (chipsContainer) chipsContainer.append(chip)
+      input.value = ''
+      dropdown.hidden = true
+      rebuildStepMeta(stepId)
+    }
+  }
+
+  input.addEventListener('focus', () => {
+    renderDropdown(input.value)
+  })
+
+  input.addEventListener('input', () => {
+    renderDropdown(input.value)
+  })
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => {
+      dropdown.hidden = true
+      highlightIdx = -1
+    }, 200)
+  })
+
+  input.addEventListener('keydown', (e) => {
+    if (dropdown.hidden) return
+
+    const options = dropdown.querySelectorAll('.step-detail__path-option:not(.is-empty)')
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      highlightIdx = Math.min(highlightIdx + 1, options.length - 1)
+      updateHighlight(options)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      highlightIdx = Math.max(highlightIdx - 1, 0)
+      updateHighlight(options)
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      if (highlightIdx >= 0 && highlightIdx < options.length) {
+        const opt = options[highlightIdx]
+        selectPath(opt.dataset.pathId, opt.dataset.createName)
+      } else if (options.length > 0) {
+        const first = options[0]
+        selectPath(first.dataset.pathId, first.dataset.createName)
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      e.stopPropagation()
+      dropdown.hidden = true
+      highlightIdx = -1
+      input.blur()
+    }
+  })
+
+  function updateHighlight(options) {
+    options.forEach((o, i) => {
+      o.classList.toggle('is-highlighted', i === highlightIdx)
+    })
+    if (highlightIdx >= 0 && options[highlightIdx]) {
+      options[highlightIdx].scrollIntoView({ block: 'nearest' })
+    }
+  }
+
+  dropdown.addEventListener('mousedown', (e) => {
+    e.preventDefault() // prevent input blur before click registers
+    const li = e.target.closest('.step-detail__path-option:not(.is-empty)')
+    if (li) {
+      selectPath(li.dataset.pathId, li.dataset.createName)
+    }
+  })
+
+  return wrapper
 }
 
 // ─── Step Element Builder ────────────────────────────────────────────────────
@@ -1169,38 +1326,8 @@ itemsContainer.addEventListener('click', (event) => {
   if (target.closest('.todo-item__actions')) return
 })
 
-// Path add via inline input in detail view
+// Milestone creation via inline input in detail view
 itemsContainer.addEventListener('keydown', async (event) => {
-  const addPathInput = event.target.closest('.step-detail__add-path')
-  if (addPathInput && event.key === 'Enter') {
-    event.preventDefault()
-    const name = addPathInput.value.trim()
-    if (!name || isAnonymousUser) return
-
-    const stepId = addPathInput.closest('.step-detail').dataset.stepId
-
-    let path = paths.find((p) => p.name.toLowerCase() === name.toLowerCase())
-    if (!path) {
-      path = await createPath(name, currentUserId)
-      if (path) paths.push(path)
-    }
-    if (!path) return
-
-    const ok = await addStepToPath(stepId, path.id)
-    if (ok) {
-      const existing = stepPathsMap.get(stepId) || []
-      existing.push({ id: path.id, name: path.name })
-      stepPathsMap.set(stepId, existing)
-
-      const chip = buildPathChip(stepId, path)
-      addPathInput.before(chip)
-      addPathInput.value = ''
-      rebuildStepMeta(stepId)
-    }
-    return
-  }
-
-  // Milestone creation via inline input in detail view
   const addMsInput = event.target.closest('.step-detail__add-milestone')
   if (addMsInput && event.key === 'Enter') {
     event.preventDefault()

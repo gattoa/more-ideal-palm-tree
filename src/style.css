@@ -682,6 +682,7 @@ button:focus-visible {
 
 .todo-item.is-expanded {
   background: color-mix(in oklab, var(--color-surface-subtle) 30%, transparent);
+  z-index: 10;
 }
 
 /* ─── Completion Indicator ("Soft Pebble") ──────────────────────────────── */
@@ -961,6 +962,11 @@ button:focus-visible {
   flex-wrap: wrap;
   gap: var(--space-xs);
   align-items: center;
+  margin-top: var(--space-xs);
+}
+
+.step-detail__path-chips:empty {
+  display: none;
 }
 
 .step-detail__path-chip {
@@ -993,7 +999,88 @@ button:focus-visible {
   border-color: transparent;
 }
 
-.step-detail__add-path,
+/* ── Path picker (combo-box) ── */
+
+.step-detail__path-picker {
+  position: relative;
+  flex: 1;
+  min-width: 8rem;
+}
+
+.step-detail__path-input {
+  border: var(--border-width-sm) solid var(--color-border);
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-body);
+  color: var(--color-text);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.step-detail__path-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.step-detail__path-input:focus {
+  border-color: var(--color-hover-border);
+  background: color-mix(in oklab, var(--color-surface-subtle) 50%, transparent);
+}
+
+.step-detail__path-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin-top: var(--space-xs);
+  padding: var(--space-xs) 0;
+  background: var(--color-surface);
+  border: var(--border-width-sm) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--color-text) 8%, transparent);
+  max-height: 11rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.step-detail__path-dropdown[hidden] {
+  display: none;
+}
+
+.step-detail__path-option {
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-body);
+  padding: var(--space-xs) var(--space-sm);
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--color-text);
+  transition: background-color var(--motion-fast) var(--motion-ease);
+}
+
+.step-detail__path-option:hover,
+.step-detail__path-option.is-highlighted {
+  background: var(--color-hover-surface);
+}
+
+.step-detail__path-option.is-create {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.step-detail__path-option.is-empty {
+  color: var(--color-text-muted);
+  font-style: italic;
+  cursor: default;
+}
+
+/* ── Milestone inline input ── */
+
 .step-detail__add-milestone {
   border: none;
   background: transparent;
@@ -1006,13 +1093,11 @@ button:focus-visible {
   width: 5rem;
 }
 
-.step-detail__add-path::placeholder,
 .step-detail__add-milestone::placeholder {
   color: var(--color-text-muted);
   opacity: 0.6;
 }
 
-.step-detail__add-path:focus,
 .step-detail__add-milestone:focus {
   background: color-mix(in oklab, var(--color-surface-subtle) 50%, transparent);
   border-radius: var(--radius-sm);
