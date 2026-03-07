@@ -114,7 +114,18 @@ function hydrateIcons() {
 
 function updateProgress() {
   if (!progressEl) return
-  const total = steps.length
+
+  // Count steps completed today — each completion is a step forward.
+  const now = new Date()
+  const total = steps.filter((s) => {
+    if (!s.completed || !s.completed_at) return false
+    const d = new Date(s.completed_at)
+    return (
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+    )
+  }).length
 
   if (total === 0) {
     progressEl.textContent = ''
@@ -625,6 +636,8 @@ async function toggleStep(id, completed) {
   // Persist completed_at in memory so isVisibleToday() stays accurate.
   const step = steps.find((s) => s.id === id)
   if (step) step.completed_at = completedAt
+
+  updateProgress()
 }
 
 function confirmDelete(step, itemEl, deleteButton) {

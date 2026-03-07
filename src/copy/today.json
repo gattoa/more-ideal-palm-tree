@@ -6,7 +6,7 @@
   "addStepAria": "Add step",
   "formAria": "Add a new step",
   "emptyState": "Every journey starts with a single step.",
-  "progressTemplate": "{{count}} {{noun}} today",
+  "progressTemplate": "{{count}} {{noun}} forward today",
   "stepSingular": "step",
   "stepPlural": "steps",
   "viewNavAria": "View",
