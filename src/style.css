@@ -125,6 +125,13 @@
   --color-warning: var(--warning-500);
   --color-danger: var(--danger-500);
 
+  /* Interactive surface tokens — soft hover/press for non-CTA elements */
+  --color-hover-surface: color-mix(in oklab, var(--color-surface-subtle) 80%, transparent);
+  --color-hover-border: var(--color-border);
+  --color-hover-text: var(--color-text);
+  --color-active-surface: var(--color-surface-subtle);
+  --color-active-border: var(--neutral-300);
+
   /* Journey semantic tokens */
   --journey-vitality:           var(--journey-vitality-500);
   --journey-vitality-soft:      var(--journey-vitality-100);
@@ -407,6 +414,8 @@ button:focus-visible {
 
 .todo-app__input::placeholder {
   color: var(--color-text-muted);
+  opacity: 0.55;
+  font-style: italic;
 }
 
 .todo-app__input:focus,
@@ -475,16 +484,16 @@ button:focus-visible {
 }
 
 .todo-app__sort-chip:hover {
-  background: var(--color-surface-subtle);
-  border-color: var(--color-border);
-  color: var(--color-text);
+  background: var(--color-hover-surface);
+  border-color: var(--color-hover-border);
+  color: var(--color-hover-text);
 }
 
 .todo-app__sort-chip.is-active,
 .todo-app__sort-chip.is-active:hover {
-  background: var(--color-surface-subtle);
-  border-color: var(--neutral-300);
-  color: var(--color-text);
+  background: var(--color-active-surface);
+  border-color: var(--color-active-border);
+  color: var(--color-hover-text);
   cursor: default;
 }
 
@@ -593,7 +602,7 @@ button:focus-visible {
 
 /* Hover feedback on tile */
 .todo-item:hover {
-  background: color-mix(in oklab, var(--color-surface) 40%, transparent);
+  background: var(--color-hover-surface);
 }
 
 .todo-item__content {
@@ -706,8 +715,8 @@ button:focus-visible {
 }
 
 .todo-item__indicator:hover {
-  background: color-mix(in oklab, var(--color-surface-subtle) 50%, transparent);
-  border-color: var(--color-text-muted);
+  background: var(--color-hover-surface);
+  border-color: var(--color-hover-border);
 }
 
 .todo-item__indicator:focus-visible {
@@ -826,8 +835,8 @@ button:focus-visible {
 }
 
 .todo-item__expand:hover {
-  background: color-mix(in oklab, var(--color-surface-subtle) 80%, transparent);
-  border-color: var(--color-border);
+  background: var(--color-hover-surface);
+  border-color: var(--color-hover-border);
 }
 
 /* ─── Subtle Step Metadata ──────────────────────────────────────────────── */
@@ -853,52 +862,33 @@ button:focus-visible {
   align-items: center;
   padding: 0.2rem 0.6rem;
   min-height: 1.625rem;
-  background: var(--color-surface-subtle);
-  border: var(--border-width-sm) solid color-mix(in oklab, var(--color-border) 50%, transparent);
+  background: transparent;
+  border: none;
   color: var(--color-text-muted);
   font-size: 0.72rem;
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
   letter-spacing: var(--letter-spacing-wide);
   border-radius: var(--radius-full);
   box-shadow: none;
   cursor: pointer;
+  opacity: 0.7;
   transition:
-    background-color var(--motion-fast) var(--motion-ease),
-    border-color var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease),
     color var(--motion-fast) var(--motion-ease);
 }
 
 .journey-context:hover {
-  border-color: var(--color-border);
-  filter: brightness(0.97);
+  opacity: 1;
+  background: var(--color-hover-surface);
+  border-color: transparent;
 }
 
-/* Journey-colored badge backgrounds */
-.journey-context[data-journey-slug="vitality"] {
-  background: var(--journey-vitality-soft);
-  border-color: color-mix(in oklab, var(--journey-vitality-300) 50%, transparent);
-  color: var(--journey-vitality-700);
-}
-.journey-context[data-journey-slug="pursuits"] {
-  background: var(--journey-pursuits-soft);
-  border-color: color-mix(in oklab, var(--journey-pursuits-300) 50%, transparent);
-  color: var(--journey-pursuits-700);
-}
-.journey-context[data-journey-slug="prosperity"] {
-  background: var(--journey-prosperity-soft);
-  border-color: color-mix(in oklab, var(--journey-prosperity-300) 50%, transparent);
-  color: var(--journey-prosperity-700);
-}
-.journey-context[data-journey-slug="connections"] {
-  background: var(--journey-connections-soft);
-  border-color: color-mix(in oklab, var(--journey-connections-300) 50%, transparent);
-  color: var(--journey-connections-700);
-}
-.journey-context[data-journey-slug="foundations"] {
-  background: var(--journey-foundations-soft);
-  border-color: color-mix(in oklab, var(--journey-foundations-300) 50%, transparent);
-  color: var(--journey-foundations-700);
-}
+/* Journey-colored context — color only, no box */
+.journey-context[data-journey-slug="vitality"]    { color: var(--journey-vitality-500);    opacity: 0.85; }
+.journey-context[data-journey-slug="pursuits"]    { color: var(--journey-pursuits-500);    opacity: 0.85; }
+.journey-context[data-journey-slug="prosperity"]  { color: var(--journey-prosperity-500);  opacity: 0.85; }
+.journey-context[data-journey-slug="connections"] { color: var(--journey-connections-500); opacity: 0.85; }
+.journey-context[data-journey-slug="foundations"] { color: var(--journey-foundations-500); opacity: 0.85; }
 
 /* ─── Step Detail View ──────────────────────────────────────────────────── */
 
@@ -954,9 +944,9 @@ button:focus-visible {
 }
 
 .step-detail__journey-option:hover {
-  background: color-mix(in oklab, var(--color-surface-subtle) 80%, transparent);
-  border-color: var(--color-border);
-  color: var(--color-text);
+  background: var(--color-hover-surface);
+  border-color: var(--color-hover-border);
+  color: var(--color-hover-text);
 }
 
 .step-detail__journey-option.is-active {
@@ -1193,9 +1183,9 @@ button:focus-visible {
 }
 
 .todo-app__account-button:hover {
-  background: color-mix(in oklab, var(--color-surface) 70%, transparent);
-  border-color: var(--color-border);
-  color: var(--color-text);
+  background: var(--color-hover-surface);
+  border-color: var(--color-hover-border);
+  color: var(--color-hover-text);
 }
 
 /* Initials avatar — shown when signed in */
@@ -1310,9 +1300,9 @@ button:focus-visible {
 }
 
 .dialog__close:hover {
-  background: color-mix(in oklab, var(--color-surface-subtle) 70%, transparent);
+  background: var(--color-hover-surface);
   border-color: transparent;
-  color: var(--color-text);
+  color: var(--color-hover-text);
 }
 
 /* ─── Auth Dialog (variant) ─────────────────────────────────────────────── */
@@ -1436,7 +1426,7 @@ button:focus-visible {
 }
 
 .auth-dialog__password-toggle:hover {
-  background: var(--color-surface-subtle);
+  background: var(--color-hover-surface);
   color: var(--color-text-muted);
 }
 
@@ -1498,9 +1488,9 @@ button:focus-visible {
 }
 
 .auth-dialog__sign-out:hover {
-  background: color-mix(in oklab, var(--color-surface-subtle) 60%, transparent);
-  border-color: var(--color-border);
-  color: var(--color-text);
+  background: var(--color-hover-surface);
+  border-color: var(--color-hover-border);
+  color: var(--color-hover-text);
 }
 
 /* Submit */
@@ -1561,9 +1551,9 @@ button:focus-visible {
 }
 
 .confirm-dialog__cancel:hover {
-  background: color-mix(in oklab, var(--color-surface-subtle) 60%, transparent);
-  border-color: var(--color-border);
-  color: var(--color-text);
+  background: var(--color-hover-surface);
+  border-color: var(--color-hover-border);
+  color: var(--color-hover-text);
 }
 
 .confirm-dialog__confirm {
