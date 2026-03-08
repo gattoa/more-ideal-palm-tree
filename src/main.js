@@ -334,6 +334,7 @@ function buildStepDetailView(step) {
     btn.type = 'button'
     btn.className = 'step-detail__journey-option'
     btn.dataset.journeyId = j.id
+    btn.dataset.journeySlug = j.slug
     btn.dataset.stepId = step.id
     btn.textContent = j.name
     if (j.id === step.journey_id) btn.classList.add('is-active')

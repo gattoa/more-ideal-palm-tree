@@ -969,7 +969,7 @@ button:focus-visible {
 
 .step-detail__journey-list {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: var(--space-xs);
 }
 
@@ -992,15 +992,25 @@ button:focus-visible {
 .step-detail__journey-option:hover {
   background: var(--color-hover-surface);
   border-color: var(--color-hover-border);
-  color: var(--color-hover-text);
 }
 
+/* Journey-colored text on options */
+.step-detail__journey-option[data-journey-slug="vitality"]    { color: var(--journey-vitality); }
+.step-detail__journey-option[data-journey-slug="pursuits"]    { color: var(--journey-pursuits); }
+.step-detail__journey-option[data-journey-slug="prosperity"]  { color: var(--journey-prosperity); }
+.step-detail__journey-option[data-journey-slug="connections"] { color: var(--journey-connections); }
+.step-detail__journey-option[data-journey-slug="foundations"] { color: var(--journey-foundations); }
+
+/* Active state — soft fill with strong text */
 .step-detail__journey-option.is-active {
-  background: color-mix(in oklab, var(--color-surface-subtle) 60%, transparent);
-  border-color: var(--color-border);
-  color: var(--color-text);
   font-weight: var(--font-weight-semibold);
 }
+
+.step-detail__journey-option.is-active[data-journey-slug="vitality"]    { background: var(--journey-vitality-soft);    border-color: var(--journey-vitality);    color: var(--journey-vitality-strong); }
+.step-detail__journey-option.is-active[data-journey-slug="pursuits"]    { background: var(--journey-pursuits-soft);    border-color: var(--journey-pursuits);    color: var(--journey-pursuits-strong); }
+.step-detail__journey-option.is-active[data-journey-slug="prosperity"]  { background: var(--journey-prosperity-soft);  border-color: var(--journey-prosperity);  color: var(--journey-prosperity-strong); }
+.step-detail__journey-option.is-active[data-journey-slug="connections"] { background: var(--journey-connections-soft); border-color: var(--journey-connections); color: var(--journey-connections-strong); }
+.step-detail__journey-option.is-active[data-journey-slug="foundations"] { background: var(--journey-foundations-soft); border-color: var(--journey-foundations); color: var(--journey-foundations-strong); }
 
 .step-detail__path-chips {
   display: flex;
@@ -1678,8 +1688,9 @@ button:focus-visible {
 /* ─── Confirm Dialog (variant) ──────────────────────────────────────────── */
 
 .confirm-dialog {
-  width: min(22rem, calc(100vw - 2 * var(--space-xl)));
+  width: min(22rem, calc(100vw - 2 * var(--space-lg)));
   padding: var(--space-xl);
+  box-sizing: border-box;
 }
 
 .confirm-dialog[open] {
@@ -1699,13 +1710,14 @@ button:focus-visible {
 
 .confirm-dialog__actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-sm);
   margin-top: var(--space-sm);
 }
 
 .confirm-dialog__cancel {
-  padding: var(--space-sm) var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
   background: transparent;
   border-color: var(--color-border);
   color: var(--color-text-muted);
@@ -1719,7 +1731,7 @@ button:focus-visible {
 }
 
 .confirm-dialog__confirm {
-  padding: var(--space-sm) var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
   background: var(--color-danger);
   border-color: var(--color-danger);
   color: var(--neutral-0);
@@ -1729,4 +1741,26 @@ button:focus-visible {
 .confirm-dialog__confirm:hover {
   background: color-mix(in oklab, var(--color-danger) 85%, var(--neutral-900) 15%);
   border-color: color-mix(in oklab, var(--color-danger) 85%, var(--neutral-900) 15%);
+}
+
+@media (max-width: 30rem) {
+  .dialog {
+    width: calc(100vw - 2 * var(--space-md));
+    padding: var(--space-lg);
+  }
+
+  .confirm-dialog {
+    width: calc(100vw - 2 * var(--space-md));
+    padding: var(--space-lg);
+  }
+
+  .confirm-dialog__actions {
+    flex-direction: column;
+  }
+
+  .confirm-dialog__cancel,
+  .confirm-dialog__confirm {
+    width: 100%;
+    justify-content: center;
+  }
 }
