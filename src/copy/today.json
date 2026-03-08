@@ -19,5 +19,6 @@
   "sortOldest": "Oldest",
   "sortNewest": "Newest",
   "sortJourney": "Journey",
-  "sortActive": "Active"
+  "sortActive": "Active",
+  "sortPriority": "Priority"
 }

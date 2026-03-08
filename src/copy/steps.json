@@ -14,5 +14,8 @@
   "editStepAria": "Edit step text",
   "removePathAria": "Remove {{pathName}}",
   "deleteStepAria": "Delete \"{{stepText}}\"",
-  "thisStep": "this step"
+  "thisStep": "this step",
+  "priority": "Priority",
+  "priorityPlaceholder": "#",
+  "priorityAria": "Set priority"
 }

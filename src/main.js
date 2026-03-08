@@ -277,6 +277,16 @@ function getSortedSteps() {
         if (aOrder !== bOrder) return aOrder - bOrder
         return new Date(a.created_at) - new Date(b.created_at)
       })
+    case 'priority':
+      return sorted.sort((a, b) => {
+        // Completed steps always sink to the bottom
+        if (a.completed !== b.completed) return a.completed ? 1 : -1
+        // Prioritized before unprioritized
+        const aP = a.priority ?? Infinity
+        const bP = b.priority ?? Infinity
+        if (aP !== bP) return aP - bP
+        return new Date(a.created_at) - new Date(b.created_at)
+      })
     default: // 'time-asc'
       return sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
   }
@@ -304,6 +314,8 @@ function buildStepDetailView(step) {
   const detail = document.createElement('div')
   detail.className = 'step-detail'
   detail.dataset.stepId = step.id
+  detail.setAttribute('role', 'region')
+  detail.setAttribute('aria-label', copy.steps.stepDetails)
   detail.hidden = true
 
   // ── Journey section ──
@@ -386,7 +398,26 @@ function buildStepDetailView(step) {
 
   msSection.append(msLabel, msSelect, msCreateInput)
 
-  detail.append(journeySection, pathSection, msSection)
+  // ── Priority section ──
+  const prioSection = document.createElement('div')
+  prioSection.className = 'step-detail__section'
+
+  const prioLabel = document.createElement('span')
+  prioLabel.className = 'step-detail__label'
+  prioLabel.textContent = copy.steps.priority
+
+  const prioInput = document.createElement('input')
+  prioInput.className = 'step-detail__priority-input'
+  prioInput.type = 'number'
+  prioInput.min = '1'
+  prioInput.placeholder = copy.steps.priorityPlaceholder
+  prioInput.setAttribute('aria-label', copy.steps.priorityAria)
+  prioInput.dataset.stepId = step.id
+  if (step.priority != null) prioInput.value = String(step.priority)
+
+  prioSection.append(prioLabel, prioInput)
+
+  detail.append(journeySection, prioSection, pathSection, msSection)
   return detail
 }
 
@@ -413,15 +444,23 @@ function buildPathPicker(stepId) {
   const wrapper = document.createElement('div')
   wrapper.className = 'step-detail__path-picker'
 
+  const dropdownId = `path-dropdown-${stepId}`
+
   const input = document.createElement('input')
   input.className = 'step-detail__path-input'
   input.type = 'text'
   input.placeholder = copy.steps.addPathPlaceholder
   input.setAttribute('aria-label', copy.steps.addPathAria)
   input.setAttribute('autocomplete', 'off')
+  input.setAttribute('role', 'combobox')
+  input.setAttribute('aria-expanded', 'false')
+  input.setAttribute('aria-controls', dropdownId)
+  input.setAttribute('aria-autocomplete', 'list')
 
   const dropdown = document.createElement('ul')
   dropdown.className = 'step-detail__path-dropdown'
+  dropdown.id = dropdownId
+  dropdown.setAttribute('role', 'listbox')
   dropdown.hidden = true
 
   wrapper.append(input, dropdown)
@@ -448,15 +487,19 @@ function buildPathPicker(stepId) {
     if (filtered.length === 0 && !trimmed) {
       const li = document.createElement('li')
       li.className = 'step-detail__path-option is-empty'
+      li.setAttribute('role', 'option')
+      li.setAttribute('aria-disabled', 'true')
       li.textContent = copy.steps.noPathsMatch
       dropdown.append(li)
       dropdown.hidden = false
+      input.setAttribute('aria-expanded', 'true')
       return
     }
 
     for (const p of filtered) {
       const li = document.createElement('li')
       li.className = 'step-detail__path-option'
+      li.setAttribute('role', 'option')
       li.textContent = p.name
       li.dataset.pathId = p.id
       dropdown.append(li)
@@ -465,6 +508,7 @@ function buildPathPicker(stepId) {
     if (trimmed && !exactMatch) {
       const li = document.createElement('li')
       li.className = 'step-detail__path-option is-create'
+      li.setAttribute('role', 'option')
       li.textContent = t(copy.steps.pathCreateOption, { name: trimmed })
       li.dataset.createName = trimmed
       dropdown.append(li)
@@ -472,8 +516,10 @@ function buildPathPicker(stepId) {
 
     if (filtered.length === 0 && !trimmed) {
       dropdown.hidden = true
+      input.setAttribute('aria-expanded', 'false')
     } else {
       dropdown.hidden = false
+      input.setAttribute('aria-expanded', 'true')
     }
   }
 
@@ -501,6 +547,8 @@ function buildPathPicker(stepId) {
       if (chipsContainer) chipsContainer.append(chip)
       input.value = ''
       dropdown.hidden = true
+      input.setAttribute('aria-expanded', 'false')
+      input.removeAttribute('aria-activedescendant')
       rebuildStepMeta(stepId)
     }
   }
@@ -516,6 +564,7 @@ function buildPathPicker(stepId) {
   input.addEventListener('blur', () => {
     setTimeout(() => {
       dropdown.hidden = true
+      input.setAttribute('aria-expanded', 'false')
       highlightIdx = -1
     }, 200)
   })
@@ -546,6 +595,8 @@ function buildPathPicker(stepId) {
       e.preventDefault()
       e.stopPropagation()
       dropdown.hidden = true
+      input.setAttribute('aria-expanded', 'false')
+      input.removeAttribute('aria-activedescendant')
       highlightIdx = -1
       input.blur()
     }
@@ -553,10 +604,15 @@ function buildPathPicker(stepId) {
 
   function updateHighlight(options) {
     options.forEach((o, i) => {
+      const id = `${dropdownId}-opt-${i}`
+      o.id = id
       o.classList.toggle('is-highlighted', i === highlightIdx)
     })
     if (highlightIdx >= 0 && options[highlightIdx]) {
       options[highlightIdx].scrollIntoView({ block: 'nearest' })
+      input.setAttribute('aria-activedescendant', options[highlightIdx].id)
+    } else {
+      input.removeAttribute('aria-activedescendant')
     }
   }
 
@@ -604,8 +660,9 @@ function buildStepElement(step, journey, isNew) {
   text.textContent = step.text
   content.append(text)
 
-  // Subtle metadata line (paths + milestone only — journey is conveyed by color)
+  // Subtle metadata line (priority + paths + milestone — journey is conveyed by color)
   const metaParts = []
+  if (step.priority != null) metaParts.push(`#${step.priority}`)
   const stepPaths = stepPathsMap.get(step.id)
   if (stepPaths && stepPaths.length > 0) {
     metaParts.push(...stepPaths.map((p) => p.name))
@@ -633,6 +690,7 @@ function buildStepElement(step, journey, isNew) {
     expandBtn.type = 'button'
     expandBtn.className = 'todo-item__expand'
     expandBtn.setAttribute('aria-label', copy.steps.stepDetails)
+    expandBtn.setAttribute('aria-expanded', 'false')
     expandBtn.textContent = '···'
     actions.append(expandBtn)
   }
@@ -648,6 +706,7 @@ function buildStepElement(step, journey, isNew) {
   deleteButton.append(icon)
 
   actions.append(deleteButton)
+
   item.append(indicator, content, timestamp, actions)
 
   // Detail view (hidden by default, for authenticated users)
@@ -658,6 +717,8 @@ function buildStepElement(step, journey, isNew) {
   return item
 }
 
+
+
 function rebuildStepMeta(stepId) {
   const step = steps.find((s) => s.id === stepId)
   if (!step) return
@@ -667,6 +728,7 @@ function rebuildStepMeta(stepId) {
   // Update meta line
   const oldMeta = tile.querySelector('.todo-item__meta')
   const metaParts = []
+  if (step.priority != null) metaParts.push(`#${step.priority}`)
   const stepPaths = stepPathsMap.get(step.id)
   if (stepPaths && stepPaths.length > 0) {
     metaParts.push(...stepPaths.map((p) => p.name))
@@ -835,15 +897,20 @@ async function toggleStep(id, completed) {
   // Record the exact moment of completion; clear it when uncompleting.
   const completedAt = completed ? new Date().toISOString() : null
 
+  // When completing a prioritized step, clear its priority so the slot opens up.
+  const step = steps.find((s) => s.id === id)
+  const hadPriority = step?.priority != null
+  const updatePayload = { completed, completed_at: completedAt }
+  if (completed && hadPriority) updatePayload.priority = null
+
   const { error } = await supabase
     .from('steps')
-    .update({ completed, completed_at: completedAt })
+    .update(updatePayload)
     .eq('id', id)
 
   if (error) {
     console.error('Failed to update step:', error.message)
     // Roll back the optimistic UI update applied in the click handler.
-    const step = steps.find((s) => s.id === id)
     if (step) step.completed = !completed
     const itemEl = itemsContainer.querySelector(`.todo-item[data-step-id="${id}"]`)
     if (itemEl) {
@@ -854,11 +921,18 @@ async function toggleStep(id, completed) {
     return
   }
 
-  // Persist completed_at in memory so isVisibleToday() stays accurate.
-  const step = steps.find((s) => s.id === id)
-  if (step) step.completed_at = completedAt
+  // Persist in memory so isVisibleToday() stays accurate.
+  if (step) {
+    step.completed_at = completedAt
+    if (completed && hadPriority) step.priority = null
+  }
 
   updateProgress()
+
+  // Recompact remaining priorities to fill the gap
+  if (completed && hadPriority) {
+    await recompactPriorities()
+  }
 }
 
 function confirmDelete(step, itemEl, deleteButton) {
@@ -993,6 +1067,95 @@ async function updateStepText(id, text) {
   const step = steps.find((s) => s.id === id)
   if (step) step.text = text
   return true
+}
+
+async function updateStepPriority(stepId, newPriority) {
+  const step = steps.find((s) => s.id === stepId)
+  if (!step) return
+
+  const oldPriority = step.priority
+
+  // Clear priority
+  if (newPriority == null) {
+    const { error } = await supabase
+      .from('steps')
+      .update({ priority: null })
+      .eq('id', stepId)
+    if (error) {
+      console.error('Failed to clear priority:', error.message)
+      return
+    }
+    step.priority = null
+    renderSteps()
+    return
+  }
+
+  // Collision resolution: shift steps at newPriority and above up by 1
+  const conflicting = steps
+    .filter((s) => s.id !== stepId && s.priority != null && s.priority >= newPriority && !s.completed)
+    .sort((a, b) => a.priority - b.priority)
+
+  // Only shift steps that form a contiguous block from newPriority
+  const toShift = []
+  let expected = newPriority
+  for (const s of conflicting) {
+    if (s.priority === expected) {
+      toShift.push(s)
+      expected++
+    } else {
+      break
+    }
+  }
+
+  // Batch update shifted steps
+  for (const s of toShift) {
+    s.priority = s.priority + 1
+    supabase
+      .from('steps')
+      .update({ priority: s.priority })
+      .eq('id', s.id)
+      .then(({ error }) => {
+        if (error) console.error('Failed to shift priority:', error.message)
+      })
+  }
+
+  // Set the new priority
+  const { error } = await supabase
+    .from('steps')
+    .update({ priority: newPriority })
+    .eq('id', stepId)
+
+  if (error) {
+    console.error('Failed to update priority:', error.message)
+    return
+  }
+
+  step.priority = newPriority
+  renderSteps()
+}
+
+async function recompactPriorities() {
+  const prioritized = steps
+    .filter((s) => s.priority != null && !s.completed)
+    .sort((a, b) => a.priority - b.priority)
+
+  let changed = false
+  for (let i = 0; i < prioritized.length; i++) {
+    const expected = i + 1
+    if (prioritized[i].priority !== expected) {
+      prioritized[i].priority = expected
+      changed = true
+      supabase
+        .from('steps')
+        .update({ priority: expected })
+        .eq('id', prioritized[i].id)
+        .then(({ error }) => {
+          if (error) console.error('Failed to recompact priority:', error.message)
+        })
+    }
+  }
+
+  if (changed) renderSteps()
 }
 
 function enterEditMode(tile, stepId) {
@@ -1256,11 +1419,21 @@ itemsContainer.addEventListener('click', (event) => {
       itemsContainer.querySelectorAll('.step-detail:not([hidden])').forEach((d) => {
         if (d !== detail) {
           d.hidden = true
-          d.closest('.todo-item')?.classList.remove('is-expanded')
+          const otherTile = d.closest('.todo-item')
+          otherTile?.classList.remove('is-expanded')
+          otherTile?.querySelector('.todo-item__expand')?.setAttribute('aria-expanded', 'false')
         }
       })
-      detail.hidden = !detail.hidden
-      tile.classList.toggle('is-expanded', !detail.hidden)
+      const isExpanding = detail.hidden
+      detail.hidden = !isExpanding
+      tile.classList.toggle('is-expanded', isExpanding)
+      expandBtn.setAttribute('aria-expanded', String(isExpanding))
+
+      // Move focus into the detail panel when expanding
+      if (isExpanding) {
+        const firstInteractive = detail.querySelector('button, input, select')
+        if (firstInteractive) firstInteractive.focus()
+      }
     }
     return
   }
@@ -1366,11 +1539,22 @@ itemsContainer.addEventListener('keydown', async (event) => {
 // Milestone select change in detail view
 itemsContainer.addEventListener('change', (event) => {
   const select = event.target.closest('.step-detail__milestone-select')
-  if (!select) return
+  if (select) {
+    const stepId = select.dataset.stepId
+    const milestoneId = select.value || null
+    updateStepMilestone(stepId, milestoneId)
+    return
+  }
 
-  const stepId = select.dataset.stepId
-  const milestoneId = select.value || null
-  updateStepMilestone(stepId, milestoneId)
+  // Priority input in detail view
+  const prioInput = event.target.closest('.step-detail__priority-input')
+  if (prioInput) {
+    const stepId = prioInput.dataset.stepId
+    const val = prioInput.value.trim()
+    const num = val ? parseInt(val, 10) : null
+    if (val && (isNaN(num) || num < 1)) return
+    updateStepPriority(stepId, num)
+  }
 })
 
 // Close expanded detail views on Escape
@@ -1378,7 +1562,9 @@ document.addEventListener('keydown', (event) => {
   if (event.key !== 'Escape') return
   itemsContainer.querySelectorAll('.step-detail:not([hidden])').forEach((d) => {
     d.hidden = true
-    d.closest('.todo-item')?.classList.remove('is-expanded')
+    const tile = d.closest('.todo-item')
+    tile?.classList.remove('is-expanded')
+    tile?.querySelector('.todo-item__expand')?.setAttribute('aria-expanded', 'false')
   })
 })
 
