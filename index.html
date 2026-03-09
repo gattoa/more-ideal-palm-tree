@@ -147,7 +147,7 @@
         <p class="todo-app__eyebrow" aria-hidden="true"></p>
         <nav class="todo-app__title-nav" data-copy="today.viewNavAria" data-copy-attr="aria-label">
           <button class="todo-app__title-link is-active" type="button" data-view="today" aria-pressed="true" data-copy="today.todayTab"></button>
-          <button class="todo-app__title-link" type="button" data-view="trails" aria-pressed="false" data-copy="today.trailsTab"></button>
+          <button class="todo-app__title-link" type="button" data-view="journey" aria-pressed="false" data-copy="today.journeyTab"></button>
         </nav>
         <p class="todo-app__progress" aria-live="polite"></p>
         <button class="todo-app__account-button" type="button" data-copy="auth.accountAria" data-copy-attr="aria-label" aria-haspopup="dialog">
@@ -188,7 +188,16 @@
 
       <section class="todo-app__items" aria-live="polite" data-copy="today.itemsAria" data-copy-attr="aria-label"></section>
 
-      <section class="trail-view" data-copy="today.trailsSectionAria" data-copy-attr="aria-label" hidden></section>
+      <section class="journey-hemisphere" aria-label="Journey" hidden>
+        <nav class="journey-hemisphere__subnav" role="tablist" aria-label="Journey view">
+          <button class="journey-hemisphere__tab is-active" type="button" data-subview="trails" role="tab" aria-selected="true" data-copy="today.trailsTab"></button>
+          <button class="journey-hemisphere__tab" type="button" data-subview="topographic" role="tab" aria-selected="false" data-copy="today.topographicTab"></button>
+          <button class="journey-hemisphere__tab" type="button" data-subview="satellite" role="tab" aria-selected="false" data-copy="today.satelliteTab"></button>
+        </nav>
+        <div class="trail-view" data-copy="today.trailsSectionAria" data-copy-attr="aria-label"></div>
+        <div class="topographic-view" data-copy="today.topographicSectionAria" data-copy-attr="aria-label" hidden></div>
+        <div class="satellite-view" data-copy="today.satelliteSectionAria" data-copy-attr="aria-label" hidden></div>
+      </section>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

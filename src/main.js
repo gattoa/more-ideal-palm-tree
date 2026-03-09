@@ -13,6 +13,8 @@ import {
 import { loadPaths, createPath, addStepToPath, removeStepFromPath, loadStepPathsMap } from './paths.js'
 import { loadMilestones, createMilestone } from './milestones.js'
 import { renderTrailView } from './trail-view.js'
+import { renderSatelliteView } from './satellite-view.js'
+import { renderTopographicView } from './topographic-view.js'
 import { getView, setView } from './views.js'
 import copy, { t } from './copy/index.js'
 
@@ -27,8 +29,12 @@ const progressEl = document.querySelector('.todo-app__progress')
 const journeyContextBtn = document.querySelector('.journey-context')
 const journeyContextName = document.querySelector('.journey-context__name')
 
+const journeyHemisphere = document.querySelector('.journey-hemisphere')
 const trailViewContainer = document.querySelector('.trail-view')
+const topographicViewContainer = document.querySelector('.topographic-view')
+const satelliteViewContainer = document.querySelector('.satellite-view')
 const viewNavTabs = document.querySelectorAll('.todo-app__title-link')
+const journeySubnavTabs = document.querySelectorAll('.journey-hemisphere__tab')
 
 const sortBar = document.querySelector('.todo-app__sort-bar')
 const sortChips = document.querySelectorAll('.todo-app__sort-chip')
@@ -79,17 +85,26 @@ function applyCopyToDom() {
 
 // ─── Eyebrow ────────────────────────────────────────────────────────────────
 
-function updateEyebrow(view) {
+function updateEyebrow(view, subview) {
   if (!eyebrow) return
 
-  if (view === 'trails') {
-    const now = new Date()
-    const eightWeeksAgo = new Date(now)
-    eightWeeksAgo.setDate(eightWeeksAgo.getDate() - 55) // ~8 weeks back
-    const fmt = { month: 'short', day: 'numeric' }
-    const start = eightWeeksAgo.toLocaleDateString('en-US', fmt)
-    const end = now.toLocaleDateString('en-US', fmt)
-    eyebrow.textContent = `${start} – ${end}`
+  if (view === 'journey') {
+    const sub = subview || journeySubview
+    if (sub === 'trails') {
+      const now = new Date()
+      const eightWeeksAgo = new Date(now)
+      eightWeeksAgo.setDate(eightWeeksAgo.getDate() - 55)
+      const fmt = { month: 'short', day: 'numeric' }
+      eyebrow.textContent = `${eightWeeksAgo.toLocaleDateString('en-US', fmt)} – ${now.toLocaleDateString('en-US', fmt)}`
+    } else if (sub === 'topographic') {
+      const now = new Date()
+      const ninetyDaysAgo = new Date(now)
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+      const fmt = { month: 'short', day: 'numeric' }
+      eyebrow.textContent = `${ninetyDaysAgo.toLocaleDateString('en-US', fmt)} – ${now.toLocaleDateString('en-US', fmt)}`
+    } else if (sub === 'satellite') {
+      eyebrow.textContent = 'Journey balance'
+    }
   } else {
     eyebrow.textContent = new Date().toLocaleDateString('en-US', {
       weekday: 'long',
@@ -103,7 +118,8 @@ updateEyebrow('today')
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
-let steps = []
+let steps = []       // Today-visible steps (for Today view rendering)
+let allSteps = []    // All loaded steps within 90-day window (for Journey hemisphere views)
 let journeys = []
 let paths = []
 let milestones = []
@@ -115,6 +131,8 @@ const renderedIds = new Set()
 let authMode = 'signup' // 'signup' | 'signin'
 let savedScrollTop = 0
 let sortMode = localStorage.getItem('sortMode') || 'time-asc'
+let satellitePeriod = localStorage.getItem('satellitePeriod') || 'quarter'
+let journeySubview = localStorage.getItem('journeySubview') || 'trails'
 
 // ─── Icons ──────────────────────────────────────────────────────────────────
 
@@ -132,7 +150,12 @@ function updateProgress() {
 
   const view = getView()
 
-  if (view === 'trails') {
+  if (view === 'journey') {
+    if (journeySubview !== 'trails') {
+      progressEl.textContent = ''
+      return
+    }
+    // Trails sub-view: show accumulated progress
     // Count completed steps across all paths in the 8-week window
     const now = new Date()
     const windowStart = new Date(now)
@@ -141,7 +164,7 @@ function updateProgress() {
     let completedCount = 0
     const activePathIds = new Set()
 
-    for (const step of steps) {
+    for (const step of allSteps) {
       if (!step.completed) continue
       const created = new Date(step.created_at)
       if (created < windowStart) continue
@@ -782,7 +805,17 @@ function renderSteps() {
 
 function refreshTrailView() {
   if (!trailViewContainer || trailViewContainer.hidden) return
-  renderTrailView(trailViewContainer, { paths, steps, stepPathsMap, milestones, journeys })
+  renderTrailView(trailViewContainer, { paths, steps: allSteps, stepPathsMap, milestones, journeys })
+}
+
+function refreshTopographicView() {
+  if (!topographicViewContainer || topographicViewContainer.hidden) return
+  renderTopographicView(topographicViewContainer, { steps: allSteps, journeys, milestones, stepPathsMap })
+}
+
+function refreshSatelliteView() {
+  if (!satelliteViewContainer || satelliteViewContainer.hidden) return
+  renderSatelliteView(satelliteViewContainer, { steps: allSteps, journeys, paths, milestones, stepPathsMap }, { period: satellitePeriod })
 }
 
 // ─── View Navigation ────────────────────────────────────────────────────────
@@ -793,10 +826,45 @@ viewNavTabs.forEach((tab) => {
   })
 })
 
+function switchJourneySubview(subview) {
+  journeySubview = subview
+  localStorage.setItem('journeySubview', subview)
+
+  // Update subnav tab states
+  journeySubnavTabs.forEach((tab) => {
+    const isActive = tab.dataset.subview === subview
+    tab.classList.toggle('is-active', isActive)
+    tab.setAttribute('aria-selected', String(isActive))
+  })
+
+  // Hide all journey sub-containers
+  if (trailViewContainer) trailViewContainer.hidden = true
+  if (topographicViewContainer) topographicViewContainer.hidden = true
+  if (satelliteViewContainer) satelliteViewContainer.hidden = true
+
+  // Show + render the active one
+  if (subview === 'trails') {
+    if (trailViewContainer) { trailViewContainer.hidden = false; refreshTrailView() }
+  } else if (subview === 'topographic') {
+    if (topographicViewContainer) { topographicViewContainer.hidden = false; refreshTopographicView() }
+  } else if (subview === 'satellite') {
+    if (satelliteViewContainer) { satelliteViewContainer.hidden = false; refreshSatelliteView() }
+  }
+
+  updateEyebrow('journey', subview)
+  updateProgress()
+}
+
+journeySubnavTabs.forEach((tab) => {
+  tab.addEventListener('click', () => {
+    switchJourneySubview(tab.dataset.subview)
+  })
+})
+
 document.addEventListener('viewchange', (event) => {
   const view = event.detail.view
 
-  // Update tab active states
+  // Update top-level tab active states
   viewNavTabs.forEach((tab) => {
     const isActive = tab.dataset.view === view
     tab.classList.toggle('is-active', isActive)
@@ -805,25 +873,45 @@ document.addEventListener('viewchange', (event) => {
 
   updateEyebrow(view)
 
+  // Toggle hemispheres
   if (view === 'today') {
-    if (trailViewContainer) trailViewContainer.hidden = true
+    if (journeyHemisphere) journeyHemisphere.hidden = true
     itemsContainer.hidden = false
     form.hidden = false
     if (sortBar) sortBar.hidden = steps.length === 0
     updateProgress()
     window.scrollTo(0, savedScrollTop)
-  } else if (view === 'trails') {
+  } else if (view === 'journey') {
     savedScrollTop = window.scrollY
-    // Hide all Today hemisphere elements
     itemsContainer.hidden = true
     form.hidden = true
     if (sortBar) sortBar.hidden = true
-    if (trailViewContainer) {
-      trailViewContainer.hidden = false
-      refreshTrailView()
-    }
-    updateProgress()
+    if (journeyHemisphere) journeyHemisphere.hidden = false
+    switchJourneySubview(journeySubview)
   }
+})
+
+// ─── Satellite Period Selector ────────────────────────────────────────────────
+
+document.addEventListener('click', (event) => {
+  const option = event.target.closest('.period-selector__option')
+  if (!option) return
+
+  const period = option.dataset.period
+  if (!period || period === satellitePeriod) return
+
+  satellitePeriod = period
+  localStorage.setItem('satellitePeriod', period)
+
+  // Update active state on buttons
+  const selector = option.closest('.period-selector')
+  if (selector) {
+    selector.querySelectorAll('.period-selector__option').forEach((btn) => {
+      btn.classList.toggle('is-active', btn.dataset.period === period)
+    })
+  }
+
+  refreshSatelliteView()
 })
 
 // ─── Supabase CRUD ───────────────────────────────────────────────────────────
@@ -862,6 +950,9 @@ async function loadSteps() {
     return
   }
 
+  // Keep all loaded steps for Journey hemisphere views (Trail, Topographic, Satellite)
+  allSteps = data
+
   // Only surface steps that belong in Today: incomplete ones (always),
   // and completed ones that were finished today in local time.
   steps = data.filter(isVisibleToday)
@@ -891,6 +982,7 @@ async function addStep(text, journeyId) {
   }
 
   steps.push(data)
+  allSteps.push(data)
   renderSteps()
 }
 
@@ -984,6 +1076,7 @@ async function deleteStep(id, itemEl, deleteButton) {
 
   const removeFromDom = () => {
     steps = steps.filter((s) => s.id !== id)
+    allSteps = allSteps.filter((s) => s.id !== id)
     if (itemEl) itemEl.remove()
 
     if (steps.length === 0) {
@@ -1020,6 +1113,8 @@ async function updateStepJourney(id, journeyId) {
 
   const idx = steps.findIndex((s) => s.id === id)
   if (idx !== -1) steps[idx] = data
+  const allIdx = allSteps.findIndex((s) => s.id === id)
+  if (allIdx !== -1) allSteps[allIdx] = data
 
   rebuildStepMeta(id)
 
@@ -1602,6 +1697,7 @@ onAuthStateChange((_event, session) => {
   currentUserId = session?.user?.id ?? null
   updateHeaderForUser(session?.user ?? null)
   steps = []
+  allSteps = []
   paths = []
   milestones = []
   stepPathsMap = new Map()

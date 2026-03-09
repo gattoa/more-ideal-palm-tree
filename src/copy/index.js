@@ -3,6 +3,8 @@ import today from './today.json'
 import trail from './trail.json'
 import dialogs from './dialogs.json'
 import steps from './steps.json'
+import satellite from './satellite.json'
+import topographic from './topographic.json'
 
 /**
  * Interpolate {{key}} placeholders in a string.
@@ -15,4 +17,4 @@ export function t(str, vars = {}) {
   return str.replace(/\{\{(\w+)\}\}/g, (_, key) => (vars[key] ?? ''))
 }
 
-export default { auth, today, trail, dialogs, steps }
+export default { auth, today, trail, dialogs, steps, satellite, topographic }

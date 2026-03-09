@@ -1264,9 +1264,437 @@ button:focus-visible {
 }
 
 
+/* ─── Journey Hemisphere ─────────────────────────────────────────────────── */
+
+.journey-hemisphere[hidden] {
+  display: none;
+}
+
+.journey-hemisphere__subnav {
+  display: flex;
+  gap: var(--space-xs);
+  padding: 0 0 var(--space-md);
+}
+
+.journey-hemisphere__tab {
+  padding: calc(var(--space-xs) * 1.25) var(--space-md);
+  border-radius: var(--radius-xl);
+  border: var(--border-width-sm) solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.journey-hemisphere__tab:hover {
+  background: var(--color-hover-surface);
+  border-color: var(--color-hover-border);
+  color: var(--color-hover-text);
+}
+
+.journey-hemisphere__tab.is-active,
+.journey-hemisphere__tab.is-active:hover {
+  background: var(--color-active-surface);
+  border-color: var(--color-active-border);
+  color: var(--color-hover-text);
+  cursor: default;
+}
+
+.journey-hemisphere__tab:focus-visible {
+  outline: var(--focus-outline-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* ─── Period Selector ─────────────────────────────────────────────────────── */
+
+.period-selector {
+  display: flex;
+  gap: var(--space-xs);
+  justify-content: center;
+  padding: var(--space-sm) 0;
+}
+
+.period-selector__option {
+  padding: calc(var(--space-xs) * 1.25) var(--space-md);
+  border-radius: var(--radius-xl);
+  border: var(--border-width-sm) solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.period-selector__option:hover {
+  background: var(--color-hover-surface);
+  border-color: var(--color-hover-border);
+  color: var(--color-hover-text);
+}
+
+.period-selector__option.is-active,
+.period-selector__option.is-active:hover {
+  background: var(--color-active-surface);
+  border-color: var(--color-active-border);
+  color: var(--color-hover-text);
+  cursor: default;
+}
+
+.period-selector__option:focus-visible {
+  outline: var(--focus-outline-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* ─── Satellite View ─────────────────────────────────────────────────────── */
+
+.satellite-view {
+  display: grid;
+  gap: var(--space-xl);
+  padding: var(--space-md) 0;
+}
+
+.satellite-view[hidden] {
+  display: none;
+}
+
+.satellite-view__empty {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-xl) 0;
+}
+
+.satellite-view__intro {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+  font-style: italic;
+}
+
+.satellite-view__section-heading {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-heading);
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  letter-spacing: var(--letter-spacing-heading);
+  color: color-mix(in oklab, var(--color-text) 80%, var(--color-primary) 20%);
+  margin: 0 0 var(--space-xs);
+}
+
+.satellite-view__section-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+  margin: 0 0 var(--space-md);
+}
+
+.satellite-view__perma {
+  padding: var(--space-lg);
+  border: var(--border-width-sm) solid color-mix(in oklab, var(--color-border) 55%, transparent);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--color-surface) 40%, transparent);
+}
+
+/* ─── Balance Wheel ──────────────────────────────────────────────────────── */
+
+.balance-wheel {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-md) 0;
+}
+
+.balance-wheel__svg {
+  max-width: 20rem;
+}
+
+/* ─── Journey Activity Summary ───────────────────────────────────────────── */
+
+.journey-activity-summary {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.journey-activity-summary__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border-left: 3px solid transparent;
+}
+
+.journey-activity-summary__row[data-journey-slug="vitality"]    { border-left-color: var(--journey-vitality); }
+.journey-activity-summary__row[data-journey-slug="pursuits"]    { border-left-color: var(--journey-pursuits); }
+.journey-activity-summary__row[data-journey-slug="prosperity"]  { border-left-color: var(--journey-prosperity); }
+.journey-activity-summary__row[data-journey-slug="connections"] { border-left-color: var(--journey-connections); }
+.journey-activity-summary__row[data-journey-slug="foundations"] { border-left-color: var(--journey-foundations); }
+
+.journey-activity-summary__name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.journey-activity-summary__row[data-journey-slug="vitality"] .journey-activity-summary__name    { color: var(--journey-vitality-strong); }
+.journey-activity-summary__row[data-journey-slug="pursuits"] .journey-activity-summary__name    { color: var(--journey-pursuits-strong); }
+.journey-activity-summary__row[data-journey-slug="prosperity"] .journey-activity-summary__name  { color: var(--journey-prosperity-strong); }
+.journey-activity-summary__row[data-journey-slug="connections"] .journey-activity-summary__name { color: var(--journey-connections-strong); }
+.journey-activity-summary__row[data-journey-slug="foundations"] .journey-activity-summary__name { color: var(--journey-foundations-strong); }
+
+.journey-activity-summary__count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.journey-activity-summary__flag {
+  width: 100%;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+/* ─── PERMA Signal Bars ──────────────────────────────────────────────────── */
+
+.perma-bars {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.perma-bar-row {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.perma-bar-row__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.perma-bar-row__track {
+  height: 0.5rem;
+  background: color-mix(in oklab, var(--color-border) 40%, transparent);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.perma-bar-row__fill {
+  height: 100%;
+  border-radius: var(--radius-xl);
+  background: var(--brand-400);
+  opacity: 0.75;
+  min-width: 0;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── Topographic View ───────────────────────────────────────────────────── */
+
+.topographic-view {
+  display: grid;
+  gap: var(--space-lg);
+  padding: var(--space-md) 0;
+}
+
+.topographic-view[hidden] {
+  display: none;
+}
+
+.topographic-view__empty {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-xl) 0;
+}
+
+/* ─── Milestone Card ─────────────────────────────────────────────────────── */
+
+.milestone-card {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border: var(--border-width-sm) solid color-mix(in oklab, var(--color-border) 55%, transparent);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--color-surface) 40%, transparent);
+}
+
+.milestone-card[data-journey-slug="vitality"]    { border-left-color: var(--journey-vitality); }
+.milestone-card[data-journey-slug="pursuits"]    { border-left-color: var(--journey-pursuits); }
+.milestone-card[data-journey-slug="prosperity"]  { border-left-color: var(--journey-prosperity); }
+.milestone-card[data-journey-slug="connections"] { border-left-color: var(--journey-connections); }
+.milestone-card[data-journey-slug="foundations"] { border-left-color: var(--journey-foundations); }
+
+.milestone-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.milestone-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-text-muted);
+}
+
+.milestone-card__dot[data-journey-slug="vitality"]    { background: var(--journey-vitality); }
+.milestone-card__dot[data-journey-slug="pursuits"]    { background: var(--journey-pursuits); }
+.milestone-card__dot[data-journey-slug="prosperity"]  { background: var(--journey-prosperity); }
+.milestone-card__dot[data-journey-slug="connections"] { background: var(--journey-connections); }
+.milestone-card__dot[data-journey-slug="foundations"] { background: var(--journey-foundations); }
+
+.milestone-card__name {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-heading);
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  color: var(--color-text);
+  margin: 0;
+  flex: 1;
+}
+
+.milestone-card__journey {
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.milestone-card__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+/* ─── Milestone Progress Bar ─────────────────────────────────────────────── */
+
+.milestone-card__progress {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.milestone-card__progress-bar {
+  height: 0.375rem;
+  background: color-mix(in oklab, var(--color-border) 40%, transparent);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.milestone-card__progress-bar__fill {
+  height: 100%;
+  border-radius: var(--radius-xl);
+  background: var(--brand-400);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Journey-colored fills */
+.milestone-card__progress-bar__fill[data-journey-slug="vitality"]    { background: var(--journey-vitality); }
+.milestone-card__progress-bar__fill[data-journey-slug="pursuits"]    { background: var(--journey-pursuits); }
+.milestone-card__progress-bar__fill[data-journey-slug="prosperity"]  { background: var(--journey-prosperity); }
+.milestone-card__progress-bar__fill[data-journey-slug="connections"] { background: var(--journey-connections); }
+.milestone-card__progress-bar__fill[data-journey-slug="foundations"] { background: var(--journey-foundations); }
+
+.milestone-card__progress-bar__fill--unbounded {
+  opacity: 0.18;
+}
+
+.milestone-card__progress-label {
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-text-muted);
+}
+
+/* ─── Milestone Card: Recent Steps ───────────────────────────────────────── */
+
+.milestone-card__recent {
+  display: grid;
+  gap: var(--space-xs);
+  padding-top: var(--space-xs);
+  border-top: var(--border-width-sm) solid color-mix(in oklab, var(--color-border) 30%, transparent);
+}
+
+.milestone-card__recent-label {
+  font-size: 0.68rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.milestone-card__recent-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.milestone-card__recent-step-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.milestone-card__recent-step-time {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── Milestone Card: Pace Estimate ──────────────────────────────────────── */
+
+.milestone-card__pace {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin: 0;
+  opacity: 0.7;
+}
+
 /* View container transitions */
 .todo-app__items,
-.trail-view {
+.trail-view,
+.topographic-view,
+.satellite-view {
   transition: opacity var(--motion-fast) var(--motion-ease);
 }
 
@@ -1303,6 +1731,22 @@ button:focus-visible {
 
   /* Reduce trail view horizontal padding */
   .trail-view__path {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  /* PERMA bars: stack label above track on narrow */
+  .perma-bar-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-xs);
+  }
+
+  /* Milestone card padding */
+  .milestone-card {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  /* Satellite view PERMA section padding */
+  .satellite-view__perma {
     padding: var(--space-md) var(--space-sm);
   }
 }

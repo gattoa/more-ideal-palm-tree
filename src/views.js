@@ -1,5 +1,6 @@
 // ─── View State ─────────────────────────────────────────────────────────────
-// Simple state machine: 'today' | 'trails'
+// Two hemispheres: 'today' (action) | 'journey' (reflection)
+// Journey hemisphere has subviews: trails, topographic, satellite
 
 let currentView = 'today'
 

@@ -1,0 +1,14 @@
+{
+  "emptyState": "Log steps to see your journey balance take shape.",
+  "intro": "Here is how your energy has been distributed.",
+  "periodSelectorAria": "Time period",
+  "periodWeek": "This Week",
+  "periodMonth": "This Month",
+  "periodQuarter": "This Quarter",
+  "stepSingular": "step",
+  "stepPlural": "steps",
+  "lowActivityFlag": "{{journey}} has been quieter {{period}}.",
+  "noActivityFlag": "No steps yet.",
+  "permaHeading": "Well-being signals",
+  "permaDesc": "Derived from your activity patterns — what you do and how consistently you do it."
+}
