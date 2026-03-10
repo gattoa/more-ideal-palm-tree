@@ -4,6 +4,7 @@
 // steps, and pace estimate. No deadline pressure language.
 
 import { calculateProgress } from './milestones.js'
+import { TOPOGRAPHIC_WINDOW_DAYS } from './shared.js'
 import copy, { t } from './copy/index.js'
 
 /**
@@ -18,7 +19,7 @@ export function renderTopographicView(container, { steps, journeys, milestones, 
   // Only show milestones with at least one contributing step in last 90 days
   const now = new Date()
   const ninetyDaysAgo = new Date(now)
-  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - TOPOGRAPHIC_WINDOW_DAYS)
 
   // Group steps by milestone_id
   const stepsByMilestone = new Map()
@@ -40,7 +41,7 @@ export function renderTopographicView(container, { steps, journeys, milestones, 
   if (activeMilestones.length === 0) {
     const empty = document.createElement('p')
     empty.className = 'topographic-view__empty'
-    empty.textContent = copy.topographic?.emptyState || 'Milestones with recent activity will appear here.'
+    empty.textContent = copy.topographic.emptyState
     container.append(empty)
     return
   }
@@ -127,13 +128,13 @@ function buildMilestoneCard(milestone, journey, msSteps, progress) {
   progressLabel.className = 'milestone-card__progress-label'
   if (progress.target) {
     const noun = progress.current === 1
-      ? (copy.topographic?.stepSingular || 'step')
-      : (copy.topographic?.stepPlural || 'steps')
+      ? copy.topographic.stepSingular
+      : copy.topographic.stepPlural
     progressLabel.textContent = `${progress.current} of ${progress.target} ${noun}`
   } else {
     const noun = progress.current === 1
-      ? (copy.topographic?.stepSingular || 'step')
-      : (copy.topographic?.stepPlural || 'steps')
+      ? copy.topographic.stepSingular
+      : copy.topographic.stepPlural
     progressLabel.textContent = `${progress.current} ${noun}`
   }
 
@@ -151,7 +152,7 @@ function buildMilestoneCard(milestone, journey, msSteps, progress) {
 
     const recentLabel = document.createElement('span')
     recentLabel.className = 'milestone-card__recent-label'
-    recentLabel.textContent = copy.topographic?.recentSteps || 'Recent steps'
+    recentLabel.textContent = copy.topographic.recentSteps
     recentSection.append(recentLabel)
 
     for (const step of recentSteps) {

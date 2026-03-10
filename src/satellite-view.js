@@ -5,6 +5,7 @@
 
 import { buildWheelSVG, countStepsByJourney, getPeriodWindows } from './wheel.js'
 import { inferPermaSignals, buildPermaBars } from './perma.js'
+import { JOURNEY_SLUGS } from './shared.js'
 import copy, { t } from './copy/index.js'
 
 /**
@@ -37,7 +38,7 @@ export function renderSatelliteView(container, { steps, journeys, paths, milesto
   if (currentSteps.length === 0 && previousSteps.length === 0) {
     const empty = document.createElement('p')
     empty.className = 'satellite-view__empty'
-    empty.textContent = copy.satellite?.emptyState || 'Log steps to see your journey balance take shape.'
+    empty.textContent = copy.satellite.emptyState
     container.append(empty)
     return
   }
@@ -45,19 +46,19 @@ export function renderSatelliteView(container, { steps, journeys, paths, milesto
   // ── Observational intro ──
   const intro = document.createElement('p')
   intro.className = 'satellite-view__intro'
-  intro.textContent = copy.satellite?.intro || 'Here is how your energy has been distributed.'
+  intro.textContent = copy.satellite.intro
   container.append(intro)
 
   // ── Period selector ──
   const periodSelector = document.createElement('div')
   periodSelector.className = 'period-selector'
   periodSelector.setAttribute('role', 'group')
-  periodSelector.setAttribute('aria-label', copy.satellite?.periodSelectorAria || 'Time period')
+  periodSelector.setAttribute('aria-label', copy.satellite.periodSelectorAria)
 
   const periods = [
-    { key: 'week', label: copy.satellite?.periodWeek || 'This Week' },
-    { key: 'month', label: copy.satellite?.periodMonth || 'This Month' },
-    { key: 'quarter', label: copy.satellite?.periodQuarter || 'This Quarter' },
+    { key: 'week', label: copy.satellite.periodWeek },
+    { key: 'month', label: copy.satellite.periodMonth },
+    { key: 'quarter', label: copy.satellite.periodQuarter },
   ]
 
   for (const p of periods) {
@@ -87,9 +88,7 @@ export function renderSatelliteView(container, { steps, journeys, paths, milesto
   const totalSteps = Object.values(currentCounts).reduce((a, b) => a + b, 0)
   const lowThreshold = totalSteps * 0.15
 
-  const slugOrder = ['vitality', 'pursuits', 'prosperity', 'connections', 'foundations']
-
-  for (const slug of slugOrder) {
+  for (const slug of JOURNEY_SLUGS) {
     const journey = journeys.find((j) => j.slug === slug)
     if (!journey) continue
 
@@ -106,8 +105,8 @@ export function renderSatelliteView(container, { steps, journeys, paths, milesto
     const countEl = document.createElement('span')
     countEl.className = 'journey-activity-summary__count'
     const noun = count === 1
-      ? (copy.satellite?.stepSingular || 'step')
-      : (copy.satellite?.stepPlural || 'steps')
+      ? copy.satellite.stepSingular
+      : copy.satellite.stepPlural
     countEl.textContent = `${count} ${noun}`
 
     row.append(nameEl, countEl)
@@ -116,16 +115,12 @@ export function renderSatelliteView(container, { steps, journeys, paths, milesto
     if (totalSteps > 0 && count < lowThreshold && count > 0) {
       const flag = document.createElement('span')
       flag.className = 'journey-activity-summary__flag'
-      flag.textContent = copy.satellite?.lowActivityFlag
-        ? t(copy.satellite.lowActivityFlag, { journey: journey.name, period: getPeriodLabel(period) })
-        : `${journey.name} has been quieter ${getPeriodLabel(period)}.`
+      flag.textContent = t(copy.satellite.lowActivityFlag, { journey: journey.name, period: getPeriodLabel(period) })
       row.append(flag)
     } else if (count === 0) {
       const flag = document.createElement('span')
       flag.className = 'journey-activity-summary__flag'
-      flag.textContent = copy.satellite?.noActivityFlag
-        ? t(copy.satellite.noActivityFlag, { journey: journey.name })
-        : `No steps yet.`
+      flag.textContent = t(copy.satellite.noActivityFlag, { journey: journey.name })
       row.append(flag)
     }
 
@@ -140,11 +135,11 @@ export function renderSatelliteView(container, { steps, journeys, paths, milesto
 
   const permaHeading = document.createElement('h3')
   permaHeading.className = 'satellite-view__section-heading'
-  permaHeading.textContent = copy.satellite?.permaHeading || 'Well-being signals'
+  permaHeading.textContent = copy.satellite.permaHeading
 
   const permaDesc = document.createElement('p')
   permaDesc.className = 'satellite-view__section-desc'
-  permaDesc.textContent = copy.satellite?.permaDesc || 'Derived from your activity patterns — what you do and how consistently you do it.'
+  permaDesc.textContent = copy.satellite.permaDesc
 
   const signals = inferPermaSignals(currentSteps, { stepPathsMap, milestones, journeys })
   const permaBars = buildPermaBars(signals)

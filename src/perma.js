@@ -9,8 +9,6 @@
 //   M — Meaning
 //   A — Accomplishment
 
-const SVG_NS = 'http://www.w3.org/2000/svg'
-
 /**
  * Infer PERMA signals from step data.
  *
@@ -24,73 +22,64 @@ export function inferPermaSignals(steps, { stepPathsMap, milestones = [], journe
     return { P: 0, E: 0, R: 0, M: 0, A: 0 }
   }
 
-  // ── Positive Emotion ──
-  // Step frequency + journey diversity indicating active life engagement
+  // ── Single-pass accumulator ──
   const journeySlugsUsed = new Set()
+  const activeDays = new Set()
+  let stepsWithPaths = 0
+  let connectionsCount = 0
+  let completedCount = 0
+  let minTime = Infinity
+  let maxTime = -Infinity
+
   for (const step of steps) {
     const slug = step.journeys?.slug
-    if (slug) journeySlugsUsed.add(slug)
+    if (slug) {
+      journeySlugsUsed.add(slug)
+      if (slug === 'connections') connectionsCount++
+    }
+
+    const ts = new Date(step.created_at)
+    const time = ts.getTime()
+    if (time < minTime) minTime = time
+    if (time > maxTime) maxTime = time
+    activeDays.add(`${ts.getFullYear()}-${ts.getMonth()}-${ts.getDate()}`)
+
+    if (stepPathsMap?.get(step.id)?.length > 0) stepsWithPaths++
+    if (step.completed) completedCount++
   }
 
-  // Frequency component: steps per day, capped at ~5/day for max signal
-  const daySpan = getDaySpan(steps)
-  const daysActive = countActiveDays(steps)
+  const MS_PER_DAY = 86_400_000
+  const daySpan = Math.max(Math.ceil((maxTime - minTime) / MS_PER_DAY), 1)
+  const daysActive = activeDays.size
+
+  // ── Positive Emotion ──
   const stepsPerDay = daySpan > 0 ? steps.length / daySpan : steps.length
   const frequencySignal = Math.min(stepsPerDay / 5, 1)
-
-  // Diversity component: how many of 5 journeys are used
   const diversitySignal = journeySlugsUsed.size / 5
-
-  // Blend: 60% frequency, 40% diversity
   const P = clamp(frequencySignal * 0.6 + diversitySignal * 0.4)
 
   // ── Engagement ──
-  // Consistency patterns, session clustering, deep Path investment
-  const consistencySignal = daySpan > 0 ? daysActive / daySpan : (steps.length > 0 ? 1 : 0)
-
-  // Path depth: steps associated with paths (deeper investment)
-  let stepsWithPaths = 0
-  for (const step of steps) {
-    const paths = stepPathsMap?.get(step.id)
-    if (paths && paths.length > 0) stepsWithPaths++
-  }
-  const pathDepth = steps.length > 0 ? stepsWithPaths / steps.length : 0
-
-  // Session clustering: multiple steps on the same day indicates deeper sessions
+  const consistencySignal = daySpan > 0 ? daysActive / daySpan : 1
+  const pathDepth = stepsWithPaths / steps.length
   const stepsPerActiveDay = daysActive > 0 ? steps.length / daysActive : 0
   const clusterSignal = Math.min(stepsPerActiveDay / 4, 1)
-
-  // Blend: 40% consistency, 30% path depth, 30% clustering
   const E = clamp(consistencySignal * 0.4 + pathDepth * 0.3 + clusterSignal * 0.3)
 
   // ── Relationships ──
-  // Proportion of steps in Connections Journey
-  const connectionsSteps = steps.filter((s) => s.journeys?.slug === 'connections').length
-  const rRatio = steps.length > 0 ? connectionsSteps / steps.length : 0
-  // Scale so that 20%+ connections steps = full signal (connections is 1 of 5 journeys)
+  const rRatio = connectionsCount / steps.length
   const R = clamp(rRatio / 0.2)
 
   // ── Meaning ──
-  // Proportion of steps with a Path association
-  const meaningRatio = steps.length > 0 ? stepsWithPaths / steps.length : 0
-  // Also consider multi-journey engagement as meaning signal
+  const meaningRatio = stepsWithPaths / steps.length
   const multiJourneySignal = journeySlugsUsed.size >= 3 ? 1 : journeySlugsUsed.size / 3
-
-  // Blend: 65% path association, 35% multi-journey
   const M = clamp(meaningRatio * 0.65 + multiJourneySignal * 0.35)
 
   // ── Accomplishment ──
-  // Completed milestones + step completion frequency
-  const completedSteps = steps.filter((s) => s.completed).length
-  const completionRate = steps.length > 0 ? completedSteps / steps.length : 0
-
-  // Milestone completion within window
+  const completionRate = completedCount / steps.length
   const completedMilestones = milestones.filter((m) => m.completed_at != null).length
   const milestoneSignal = milestones.length > 0
     ? Math.min(completedMilestones / Math.max(milestones.length, 3), 1)
     : 0
-
-  // Blend: 60% completion rate, 40% milestone progress
   const A = clamp(completionRate * 0.6 + milestoneSignal * 0.4)
 
   return { P, E, R, M, A }
@@ -100,23 +89,6 @@ export function inferPermaSignals(steps, { stepPathsMap, milestones = [], journe
 
 function clamp(v) {
   return Math.max(0, Math.min(1, v))
-}
-
-function getDaySpan(steps) {
-  if (steps.length === 0) return 0
-  const dates = steps.map((s) => new Date(s.created_at).getTime())
-  const min = Math.min(...dates)
-  const max = Math.max(...dates)
-  return Math.max(Math.ceil((max - min) / (24 * 60 * 60 * 1000)), 1)
-}
-
-function countActiveDays(steps) {
-  const days = new Set()
-  for (const step of steps) {
-    const d = new Date(step.created_at)
-    days.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`)
-  }
-  return days.size
 }
 
 // ─── PERMA Labels ───────────────────────────────────────────────────────────

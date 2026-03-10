@@ -16,6 +16,7 @@ import { renderTrailView } from './trail-view.js'
 import { renderSatelliteView } from './satellite-view.js'
 import { renderTopographicView } from './topographic-view.js'
 import { getView, setView } from './views.js'
+import { TRAIL_WINDOW_DAYS, TOPOGRAPHIC_WINDOW_DAYS, formatDateRange } from './shared.js'
 import copy, { t } from './copy/index.js'
 
 // ─── DOM ────────────────────────────────────────────────────────────────────
@@ -85,24 +86,15 @@ function applyCopyToDom() {
 
 // ─── Eyebrow ────────────────────────────────────────────────────────────────
 
-function updateEyebrow(view, subview) {
+function updateEyebrow(view) {
   if (!eyebrow) return
 
   if (view === 'journey') {
-    const sub = subview || journeySubview
-    if (sub === 'trails') {
-      const now = new Date()
-      const eightWeeksAgo = new Date(now)
-      eightWeeksAgo.setDate(eightWeeksAgo.getDate() - 55)
-      const fmt = { month: 'short', day: 'numeric' }
-      eyebrow.textContent = `${eightWeeksAgo.toLocaleDateString('en-US', fmt)} – ${now.toLocaleDateString('en-US', fmt)}`
-    } else if (sub === 'topographic') {
-      const now = new Date()
-      const ninetyDaysAgo = new Date(now)
-      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
-      const fmt = { month: 'short', day: 'numeric' }
-      eyebrow.textContent = `${ninetyDaysAgo.toLocaleDateString('en-US', fmt)} – ${now.toLocaleDateString('en-US', fmt)}`
-    } else if (sub === 'satellite') {
+    if (journeySubview === 'trails') {
+      eyebrow.textContent = formatDateRange(TRAIL_WINDOW_DAYS)
+    } else if (journeySubview === 'topographic') {
+      eyebrow.textContent = formatDateRange(TOPOGRAPHIC_WINDOW_DAYS)
+    } else if (journeySubview === 'satellite') {
       eyebrow.textContent = 'Journey balance'
     }
   } else {
@@ -159,7 +151,7 @@ function updateProgress() {
     // Count completed steps across all paths in the 8-week window
     const now = new Date()
     const windowStart = new Date(now)
-    windowStart.setDate(windowStart.getDate() - 55)
+    windowStart.setDate(windowStart.getDate() - TRAIL_WINDOW_DAYS)
 
     let completedCount = 0
     const activePathIds = new Set()
@@ -798,7 +790,7 @@ function renderSteps() {
 
   hydrateIcons()
   updateProgress()
-  refreshTrailView()
+  refreshActiveJourneyView()
 }
 
 // ─── Trail View ─────────────────────────────────────────────────────────────
@@ -816,6 +808,12 @@ function refreshTopographicView() {
 function refreshSatelliteView() {
   if (!satelliteViewContainer || satelliteViewContainer.hidden) return
   renderSatelliteView(satelliteViewContainer, { steps: allSteps, journeys, paths, milestones, stepPathsMap }, { period: satellitePeriod })
+}
+
+function refreshActiveJourneyView() {
+  refreshTrailView()
+  refreshTopographicView()
+  refreshSatelliteView()
 }
 
 // ─── View Navigation ────────────────────────────────────────────────────────
@@ -851,7 +849,7 @@ function switchJourneySubview(subview) {
     if (satelliteViewContainer) { satelliteViewContainer.hidden = false; refreshSatelliteView() }
   }
 
-  updateEyebrow('journey', subview)
+  updateEyebrow('journey')
   updateProgress()
 }
 
@@ -902,15 +900,6 @@ document.addEventListener('click', (event) => {
 
   satellitePeriod = period
   localStorage.setItem('satellitePeriod', period)
-
-  // Update active state on buttons
-  const selector = option.closest('.period-selector')
-  if (selector) {
-    selector.querySelectorAll('.period-selector__option').forEach((btn) => {
-      btn.classList.toggle('is-active', btn.dataset.period === period)
-    })
-  }
-
   refreshSatelliteView()
 })
 
@@ -1087,7 +1076,7 @@ async function deleteStep(id, itemEl, deleteButton) {
     }
 
     updateProgress()
-    refreshTrailView()
+    refreshActiveJourneyView()
   }
 
   if (itemEl) {
@@ -1127,7 +1116,7 @@ async function updateStepJourney(id, journeyId) {
     })
   }
 
-  refreshTrailView()
+  refreshActiveJourneyView()
 }
 
 async function updateStepMilestone(stepId, milestoneId) {
@@ -1141,12 +1130,16 @@ async function updateStepMilestone(stepId, milestoneId) {
     return
   }
 
-  const step = steps.find((s) => s.id === stepId)
-  if (step) {
-    step.milestone_id = milestoneId || null
-    step.milestones = milestoneId ? milestones.find((m) => m.id === milestoneId) || null : null
-    rebuildStepMeta(stepId)
+  // Update in both arrays (steps may not contain this step if completed yesterday)
+  for (const arr of [steps, allSteps]) {
+    const s = arr.find((s) => s.id === stepId)
+    if (s) {
+      s.milestone_id = milestoneId || null
+      s.milestones = milestoneId ? milestones.find((m) => m.id === milestoneId) || null : null
+    }
   }
+  rebuildStepMeta(stepId)
+  refreshActiveJourneyView()
 }
 
 async function updateStepText(id, text) {
@@ -1682,7 +1675,7 @@ function scheduleMidnightArchive() {
     steps = steps.filter(isVisibleToday)
     if (steps.length !== before) {
       renderSteps()
-      refreshTrailView()
+      refreshActiveJourneyView()
     }
     scheduleMidnightArchive() // reschedule for the following midnight
   }, msUntilMidnight)

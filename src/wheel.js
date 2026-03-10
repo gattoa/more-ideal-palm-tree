@@ -3,45 +3,14 @@
 // Ghost outline of previous period for trend comparison.
 // Pure DOM SVG — no external library.
 
-const SVG_NS = 'http://www.w3.org/2000/svg'
+import { SVG_NS, JOURNEY_SLUGS, getJourneyColor, readToken } from './shared.js'
 
 const JOURNEY_ANGLES = {
-  // Evenly spaced around the circle, starting from top (12 o'clock)
-  // Order: Vitality (top), Pursuits (top-right), Prosperity (bottom-right),
-  //        Connections (bottom-left), Foundations (top-left)
   vitality:    -90,
   pursuits:    -90 + 72,
   prosperity:  -90 + 144,
   connections: -90 + 216,
   foundations: -90 + 288,
-}
-
-function getJourneyColor(slug) {
-  const root = document.documentElement
-  const map = {
-    vitality: '--journey-vitality-500',
-    pursuits: '--journey-pursuits-500',
-    prosperity: '--journey-prosperity-500',
-    connections: '--journey-connections-500',
-    foundations: '--journey-foundations-500',
-  }
-  const varName = map[slug]
-  if (!varName) return getComputedStyle(root).getPropertyValue('--color-text-muted').trim()
-  return getComputedStyle(root).getPropertyValue(varName).trim()
-}
-
-function getJourneySoftColor(slug) {
-  const root = document.documentElement
-  const map = {
-    vitality: '--journey-vitality-100',
-    pursuits: '--journey-pursuits-100',
-    prosperity: '--journey-prosperity-100',
-    connections: '--journey-connections-100',
-    foundations: '--journey-foundations-100',
-  }
-  const varName = map[slug]
-  if (!varName) return 'transparent'
-  return getComputedStyle(root).getPropertyValue(varName).trim()
 }
 
 function polarToCartesian(cx, cy, radius, angleDeg) {
@@ -82,9 +51,17 @@ export function buildWheelSVG(currentCounts, previousCounts, journeys, { size = 
   const maxPrev = Math.max(...allPrevCounts, 1)
   const normalizeMax = Math.max(maxCount, maxPrev, 1)
 
+  // ── Pre-read CSS tokens (avoid repeated getComputedStyle) ──
+  const mutedColor = readToken('--color-text-muted')
+  const brandFill = readToken('--brand-200')
+  const brandStroke = readToken('--brand-500')
+  const colorCache = new Map()
+  for (const slug of JOURNEY_SLUGS) {
+    colorCache.set(slug, getJourneyColor(slug))
+  }
+
   // ── Grid rings (subtle concentric circles for reference) ──
   const rings = [0.25, 0.5, 0.75, 1.0]
-  const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim()
 
   for (const fraction of rings) {
     const ring = document.createElementNS(SVG_NS, 'circle')
@@ -99,9 +76,7 @@ export function buildWheelSVG(currentCounts, previousCounts, journeys, { size = 
   }
 
   // ── Spoke baselines ──
-  const slugs = ['vitality', 'pursuits', 'prosperity', 'connections', 'foundations']
-
-  for (const slug of slugs) {
+  for (const slug of JOURNEY_SLUGS) {
     const angle = JOURNEY_ANGLES[slug]
     const end = polarToCartesian(cx, cy, maxRadius, angle)
 
@@ -118,7 +93,7 @@ export function buildWheelSVG(currentCounts, previousCounts, journeys, { size = 
 
   // ── Ghost outline (previous period) ──
   if (previousCounts && allPrevCounts.some((c) => c > 0)) {
-    const ghostPoints = slugs.map((slug) => {
+    const ghostPoints = JOURNEY_SLUGS.map((slug) => {
       const count = previousCounts[slug] || 0
       const radius = count === 0 ? 0 : Math.max((count / normalizeMax) * maxRadius, minDotRadius)
       const angle = JOURNEY_ANGLES[slug]
@@ -138,7 +113,7 @@ export function buildWheelSVG(currentCounts, previousCounts, journeys, { size = 
   }
 
   // ── Current period shape ──
-  const currentPoints = slugs.map((slug) => {
+  const currentPoints = JOURNEY_SLUGS.map((slug) => {
     const count = currentCounts[slug] || 0
     const radius = count === 0 ? 0 : Math.max((count / normalizeMax) * maxRadius, minDotRadius)
     const angle = JOURNEY_ANGLES[slug]
@@ -151,9 +126,9 @@ export function buildWheelSVG(currentCounts, previousCounts, journeys, { size = 
 
     const shape = document.createElementNS(SVG_NS, 'path')
     shape.setAttribute('d', shapePath)
-    shape.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--brand-200').trim())
+    shape.setAttribute('fill', brandFill)
     shape.setAttribute('fill-opacity', '0.18')
-    shape.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--brand-500').trim())
+    shape.setAttribute('stroke', brandStroke)
     shape.setAttribute('stroke-opacity', '0.4')
     shape.setAttribute('stroke-width', '1.5')
     shape.setAttribute('stroke-linejoin', 'round')
@@ -161,12 +136,12 @@ export function buildWheelSVG(currentCounts, previousCounts, journeys, { size = 
   }
 
   // ── Spoke endpoints (journey-colored dots) ──
-  for (const slug of slugs) {
+  for (const slug of JOURNEY_SLUGS) {
     const count = currentCounts[slug] || 0
     const radius = count === 0 ? 0 : Math.max((count / normalizeMax) * maxRadius, minDotRadius)
     const angle = JOURNEY_ANGLES[slug]
     const pos = polarToCartesian(cx, cy, radius, angle)
-    const color = getJourneyColor(slug)
+    const color = colorCache.get(slug)
 
     const dot = document.createElementNS(SVG_NS, 'circle')
     dot.setAttribute('cx', String(count === 0 ? cx : pos.x))
@@ -191,7 +166,7 @@ export function buildWheelSVG(currentCounts, previousCounts, journeys, { size = 
     text.setAttribute('y', String(pos.y))
     text.setAttribute('text-anchor', 'middle')
     text.setAttribute('dominant-baseline', 'central')
-    text.setAttribute('fill', getJourneyColor(j.slug))
+    text.setAttribute('fill', colorCache.get(j.slug) || mutedColor)
     text.setAttribute('font-size', '10')
     text.setAttribute('font-weight', '500')
     text.setAttribute('font-family', 'var(--font-family-body)')
@@ -221,13 +196,7 @@ export function buildWheelSVG(currentCounts, previousCounts, journeys, { size = 
  * @returns {Object} { vitality: N, pursuits: N, ... }
  */
 export function countStepsByJourney(steps, start, end) {
-  const counts = {
-    vitality: 0,
-    pursuits: 0,
-    prosperity: 0,
-    connections: 0,
-    foundations: 0,
-  }
+  const counts = Object.fromEntries(JOURNEY_SLUGS.map((s) => [s, 0]))
 
   for (const step of steps) {
     const created = new Date(step.created_at)
